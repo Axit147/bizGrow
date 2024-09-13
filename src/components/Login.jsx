@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getUserInfo } from "../App";
 
 const Login = () => {
   const { toast } = useToast();
@@ -63,6 +64,7 @@ const Login = () => {
       });
       // return location.reload();
       // return navigate("/dashboard");
+      getUserInfo();
       onClose();
     } catch (error) {
       console.log(error);
