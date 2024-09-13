@@ -32,18 +32,23 @@ import {
 } from "@/components/ui/dialog";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import { Outlet } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { UserContext } from "./hooks/userProvider";
 import useSignUptModal from "./hooks/useSignUpModal";
 import useLoginModal from "./hooks/useLoginModal";
 import ModalProvider from "./lib/providers/ModalProvider";
+import { useToast } from "@/hooks/use-toast";
 
 function App() {
   const user = useContext(UserContext);
   const signUpModal = useSignUptModal();
   const loginModal = useLoginModal();
+  const { toast } = useToast();
+
+  const [subEmail, setSubEmail] = useState()
+
   const getUserInfo = async (token) => {
     console.log(user);
     const response = await axios.get("http://127.0.0.1:8000/get_user", {
@@ -139,7 +144,9 @@ function App() {
                 Boost your Sales and see how data can be used to surface key
               </p>
               <p>sales insights that help you build revenue</p>
-              <button>Get Started</button>
+              <button onClick={()=>{
+                useNavigate()
+              }}>Get Started</button>
             </div>
 
             <div className="hero-image">
@@ -504,8 +511,14 @@ function App() {
               </div>
 
               <div className="footer-input">
-                <input type="text" placeholder="Email"></input>
-                <button>Subscribe</button>
+                <input value={subEmail} onChange={(e)=>{setSubEmail(e.target.value)}} type="text" placeholder="Email"></input>
+                <button onClick={async()=>{
+                  await axios.post("http://127.0.0.1:8000/create_subscription",{email:subEmail})
+                  toast({
+                    title: "Yay! You have successfully subscribed to our newsletter"
+                  })
+                  setSubEmail('')
+                }}>Subscribe</button>
                 {/* <div className='footer-input-img'><img src={ArrowImage} alt='ArrowImage'></img></div> */}
               </div>
 
