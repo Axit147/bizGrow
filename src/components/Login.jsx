@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import CustomInput from "./CustomInput";
@@ -15,16 +15,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getUserInfo } from "../App";
+import { UserContext } from "../hooks/userProvider";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const user = useContext(UserContext)
   const { isOpen, onClose } = useLoginModal();
   const [fields, setFields] = useState({
     email: undefined,
     password: undefined,
   });
+  const getUserInfo = async (token) => {
+    console.log(user);
+    const response = await axios.get("http://127.0.0.1:8000/get_user", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    console.log(response);
+  
+    user.setName(response.data.user[0].name);
+    user.setEmail(response.data.user[0].email);
+    user.setAddress(response.data.user[0].address);
+    user.setPhone_no(response.data.user[0].phone_no);
+    user.setId(response.data.user[0].id);
+  };
 
   const onChange = (open) => {
     if (!open) {
@@ -65,6 +81,7 @@ const Login = () => {
       // return location.reload();
       // return navigate("/dashboard");
       const token = localStorage.getItem("token");
+      
       getUserInfo(token);
       onClose();
     } catch (error) {

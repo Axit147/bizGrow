@@ -44,6 +44,22 @@ function App() {
   const user = useContext(UserContext);
   const signUpModal = useSignUptModal();
   const loginModal = useLoginModal();
+  const getUserInfo = async (token) => {
+    console.log(user);
+    const response = await axios.get("http://127.0.0.1:8000/get_user", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    console.log(response);
+  
+    user.setName(response.data.user[0].name);
+    user.setEmail(response.data.user[0].email);
+    user.setAddress(response.data.user[0].address);
+    user.setPhone_no(response.data.user[0].phone_no);
+    user.setId(response.data.user[0].id);
+  };
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -517,21 +533,4 @@ function App() {
   );
 }
 
-const getUserInfo = async (token) => {
-  console.log(user);
-  const response = await axios.get("http://127.0.0.1:8000/get_user", {
-    headers: {
-      Authorization: token,
-    },
-  });
-  console.log(response);
-
-  user.setName(response.data.user[0].name);
-  user.setEmail(response.data.user[0].email);
-  user.setAddress(response.data.user[0].address);
-  user.setPhone_no(response.data.user[0].phone_no);
-  user.setId(response.data.user[0].id);
-};
-
-export { getUserInfo };
 export default App;
