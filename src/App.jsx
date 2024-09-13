@@ -32,8 +32,33 @@ import {
 } from "@/components/ui/dialog";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import { Outlet } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import axios from "axios";
+import { UserContext } from "./hooks/userProvider";
 
 function App() {
+  const user = useContext(UserContext);
+
+  const getUserInfo = async (token) => {
+    console.log(user);
+    const response = await axios.get("http://127.0.0.1:8000/get_user", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    user.setName(response.name);
+    user.setEmail(response.email);
+    user.setsetAddress(response.address);
+    user.setPhone_no(response.phone_no);
+    user.setId(response.id);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    token && getUserInfo(token);
+  }, []);
+
   return (
     <div className="light">
       <nav className="flex justify-between items-center p-5 text-white bg-foreground">
@@ -68,41 +93,42 @@ function App() {
           </a>
         </div>
         <div className="flex gap-2">
-          <Dialog>
-            <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
-              {/* <Button className="text-lg text-black px-5 rounded-sm border-none"> */}
-              Sign Up
-              {/* </Button> */}
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>
-                <p className="font-bold text-2xl text-center mb-2 text-slate-700">
-                  Register to{" "}
-                  <span className="text-primary font-extrabold">Biz</span>
-                  <span className="font-extrabold">Grow</span>
-                </p>
-              </DialogTitle>
-              <SignUp />
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
-              {/* <Button className="text-lg text-black px-5 rounded-sm border-none"> */}
-              Log In
-              {/* </Button> */}
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>
-                <p className="font-bold text-2xl text-center mb-2 text-slate-700">
-                  Welcom back!
-                </p>
-              </DialogTitle>
-              <Login />
-            </DialogContent>
-          </Dialog>
+          {user.id ? (
+            <div className="text-lg">{user.name}</div>
+          ) : (
+            <>
+              <Dialog>
+                <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
+                  Sign Up
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogTitle>
+                    <p className="font-bold text-2xl text-center mb-2 text-slate-700">
+                      Register to{" "}
+                      <span className="text-primary font-extrabold">Biz</span>
+                      <span className="font-extrabold">Grow</span>
+                    </p>
+                  </DialogTitle>
+                  <SignUp />
+                </DialogContent>
+              </Dialog>
+              <Dialog>
+                <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
+                  Log In
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogTitle>
+                    <p className="font-bold text-2xl text-center mb-2 text-slate-700">
+                      Welcom back!
+                    </p>
+                  </DialogTitle>
+                  <Login />
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
         </div>
       </nav>
-
       <section>
         <div className="hero-section">
           <div className="hero-banner">

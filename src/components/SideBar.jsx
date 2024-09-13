@@ -8,6 +8,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,38 +39,58 @@ const SideBar = () => {
         </div>
       )}
       <div className="w-full text-white mt-5 flex flex-col gap-5">
-        <div
-          className={`w-full hover:bg-white/20 flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 ${
-            isOpen ? "px-4" : "px-0.5"
-          } text-lg`}
+        <NavLink
+          to={"/:id/dashboard"}
+          className={({ isActive, isPending }) =>
+            `w-full ${
+              isActive ? "hover:opacity-75" : "hover:bg-white/20"
+            } flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 text-lg ${
+              isActive && "bg-white text-foreground "
+            } ${isOpen ? "px-4" : "px-0.5"}`
+          }
         >
-          <LayoutDashboard className="text-background h-8 w-8 shrink-0" />
+          <LayoutDashboard className="h-8 w-8 shrink-0" />
           Dashboard
-        </div>
-        <div
-          className={`w-full hover:bg-white/20 flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 ${
-            isOpen ? "px-4" : "px-0.5"
-          } text-lg`}
+        </NavLink>
+        <NavLink
+          to={"/:id/customers"}
+          className={({ isActive, isPending }) =>
+            `w-full ${
+              isActive ? "hover:opacity-75" : "hover:bg-white/20"
+            } flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 text-lg ${
+              isActive && "bg-white text-foreground "
+            } ${isOpen ? "px-4" : "px-0.5"}`
+          }
         >
-          <UsersRound className="text-background h-8 w-8 shrink-0" />
+          <UsersRound className="h-8 w-8 shrink-0" />
           Customer
-        </div>
-        <div
-          className={`w-full hover:bg-white/20 flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 ${
-            isOpen ? "px-4" : "px-0.5"
-          } text-lg`}
+        </NavLink>
+        <NavLink
+          to={"/:id/items"}
+          className={({ isActive, isPending }) =>
+            `w-full ${
+              isActive ? "hover:opacity-75" : "hover:bg-white/20"
+            } flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 text-lg ${
+              isActive && "bg-white text-foreground "
+            } ${isOpen ? "px-4" : "px-0.5"}`
+          }
         >
-          <ShoppingBag className="text-background h-8 w-8 shrink-0" />
+          <ShoppingBag className="h-8 w-8 shrink-0" />
           Items
-        </div>
-        <div
-          className={`w-full hover:bg-white/20 flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 ${
-            isOpen ? "px-4" : "px-0.5"
-          } text-lg`}
+        </NavLink>
+        <NavLink
+          to={"/:id/invoices"}
+          className={({ isActive, isPending }) =>
+            `w-full ${
+              isActive ? "hover:opacity-75" : "hover:bg-white/20"
+            } flex gap-3.5 rounded items-center p-1 py-2 transition duration-150 text-lg ${
+              isActive && "bg-white text-foreground "
+            } ${isOpen ? "px-4" : "px-0.5"}`
+          }
         >
-          <ReceiptIndianRupee className="text-background h-8 w-8 shrink-0" />
+          <ReceiptIndianRupee className="h-8 w-8 shrink-0" />
           Invoices
-        </div>
+        </NavLink>
       </div>
     </div>
   );
