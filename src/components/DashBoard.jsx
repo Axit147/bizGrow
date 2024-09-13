@@ -15,12 +15,19 @@ const DashBoard = () => {
   return (
     <div>
       {/* <SideBar /> */}
-      <Sheet left>
-        <SheetTrigger className="border-2 border-black rounded-md p-0.5 hover:bg-slate-200 transition">
-          <Menu />
-        </SheetTrigger>
-        <SheetContent side={"left"}></SheetContent>
-      </Sheet>
+      <nav className="bg-foreground p-2">
+        <Sheet className="dark">
+          <SheetTrigger className="border-2 border-primary rounded-md p-0.5 hover:opacity-80 transition">
+            <Menu className="text-primary" />
+          </SheetTrigger>
+          <SheetContent side={"left"} className="w-[300px]">
+            <SheetHeader>
+              <span>Biz</span>
+              <span>Grow</span>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+      </nav>
       <Routes></Routes>
     </div>
   );
