@@ -255,8 +255,8 @@ const SignUp = () => {
             {formError}
           </div>
         )}
-        <Button onClick={handleSubmit} className="mt-3">
-          <Loader2 className="animate-spin" />
+        <Button onClick={handleSubmit} className="mt-3" disabled={isLoading}>
+          {isLoading && <Loader2 className="animate-spin" />}
           Sign Up
         </Button>
       </DialogContent>
