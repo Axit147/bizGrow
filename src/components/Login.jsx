@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import CustomInput from "./CustomInput";
 import { useToast } from "@/hooks/use-toast";
-import { KeyRound, Mail } from "lucide-react";
+import { KeyRound, Loader2, Mail } from "lucide-react";
 import { redirect, useNavigate } from "react-router-dom";
 import axios from "axios";
 import useLoginModal from "../hooks/useLoginModal";
@@ -33,9 +33,11 @@ const Login = () => {
   };
 
   const [formError, setFormError] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
     setFormError(undefined);
+    setIsLoading(true);
 
     try {
       Object.entries(fields).forEach(([key, value]) => {
@@ -59,8 +61,9 @@ const Login = () => {
         title: "Yay!",
         description: "You have successfully registered.",
       });
-      return location.reload();
+      // return location.reload();
       // return navigate("/dashboard");
+      onClose();
     } catch (error) {
       console.log(error);
       setFormError(error.response.data.detail);
@@ -69,6 +72,8 @@ const Login = () => {
         title: "Uh oh!",
         description: error.response.data.detail,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -140,6 +145,7 @@ const Login = () => {
           </div>
         )}
         <Button onClick={handleSubmit} className="mt-3">
+          <Loader2 className="animate-spin" />
           Log In
         </Button>
       </DialogContent>

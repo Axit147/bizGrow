@@ -17,6 +17,7 @@ import {
   CloudCog,
   Home,
   KeyRound,
+  Loader2,
   Mail,
   MapPin,
   MapPinHouse,
@@ -55,6 +56,7 @@ const SignUp = () => {
   };
 
   const [formError, setFormError] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   // const statesAndUTs = [
   //   "Andhra Pradesh",
@@ -95,6 +97,7 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     setFormError(undefined);
+    setIsLoading(false);
 
     try {
       Object.entries(fields).forEach(([key, value]) => {
@@ -127,6 +130,7 @@ const SignUp = () => {
         title: "Yay!",
         description: "You have successfully registered.",
       });
+      onClose();
 
       // return navigate("/dashboard");
     } catch (error) {
@@ -137,6 +141,8 @@ const SignUp = () => {
         title: "Uh oh!",
         description: error.response.data.detail,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -250,6 +256,7 @@ const SignUp = () => {
           </div>
         )}
         <Button onClick={handleSubmit} className="mt-3">
+          <Loader2 className="animate-spin" />
           Sign Up
         </Button>
       </DialogContent>
