@@ -18,7 +18,9 @@ import {
   KeyRound,
   Mail,
   MapPin,
+  MapPinHouse,
   Phone,
+  UserRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,51 +28,51 @@ const SignUp = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [fields, setFields] = useState({
-    companyName: undefined,
+    name: undefined,
     email: undefined,
-    phone: undefined,
+    phone_no: undefined,
     password: undefined,
-    state: undefined,
+    address: undefined,
   });
 
   const [formError, setFormError] = useState(undefined);
 
-  const statesAndUTs = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-    "Andaman and Nicobar Islands",
-    "Chandigarh",
-    "Dadra and Nagar Haveli and Daman and Diu",
-    "Lakshadweep",
-    "Delhi",
-    "Puducherry",
-  ];
+  // const statesAndUTs = [
+  //   "Andhra Pradesh",
+  //   "Arunachal Pradesh",
+  //   "Assam",
+  //   "Bihar",
+  //   "Chhattisgarh",
+  //   "Goa",
+  //   "Gujarat",
+  //   "Haryana",
+  //   "Himachal Pradesh",
+  //   "Jharkhand",
+  //   "Karnataka",
+  //   "Kerala",
+  //   "Madhya Pradesh",
+  //   "Maharashtra",
+  //   "Manipur",
+  //   "Meghalaya",
+  //   "Mizoram",
+  //   "Nagaland",
+  //   "Odisha",
+  //   "Punjab",
+  //   "Rajasthan",
+  //   "Sikkim",
+  //   "Tamil Nadu",
+  //   "Telangana",
+  //   "Tripura",
+  //   "Uttar Pradesh",
+  //   "Uttarakhand",
+  //   "West Bengal",
+  //   "Andaman and Nicobar Islands",
+  //   "Chandigarh",
+  //   "Dadra and Nagar Haveli and Daman and Diu",
+  //   "Lakshadweep",
+  //   "Delhi",
+  //   "Puducherry",
+  // ];
 
   const handleSubmit = () => {
     setFormError(undefined);
@@ -81,15 +83,15 @@ const SignUp = () => {
           setFormError(
             `${
               key === "companyName"
-                ? "Company Name"
+                ? "Name"
                 : key === "email"
                 ? "Email"
                 : key === "password"
                 ? "Password"
-                : key === "state"
-                ? "State"
-                : key === "phone"
-                ? "Phone"
+                : key === "address"
+                ? "Address"
+                : key === "phone_no"
+                ? "Phone no."
                 : key
             } is required`
           );
@@ -100,11 +102,11 @@ const SignUp = () => {
       console.log(fields);
 
       setFields({
-        companyName: "",
+        name: "",
         email: "",
-        phone: "",
+        phone_no: "",
         password: "",
-        state: "",
+        address: "",
       });
 
       toast({
@@ -125,16 +127,16 @@ const SignUp = () => {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <Label>Comapny Name :</Label>
+        <Label>Name :</Label>
         <CustomInput
-          name={"Comapny Name"}
+          name={"Name"}
           onChange={(v) => {
-            setFields({ ...fields, companyName: v });
+            setFields({ ...fields, name: v });
           }}
           value={fields.companyName}
         >
           <div>
-            <Building2 className="h-5 w-5 text-slate-600" />
+            <UserRound className="h-5 w-5 text-slate-600" />
           </div>
         </CustomInput>
       </div>
@@ -157,12 +159,27 @@ const SignUp = () => {
         <CustomInput
           name={"Phone"}
           onChange={(v) => {
-            setFields({ ...fields, phone: v });
+            setFields({ ...fields, phone_no: v });
           }}
           value={fields.phone}
         >
           <div>
             <Phone className="h-5 w-5 text-slate-600" />
+          </div>
+        </CustomInput>
+      </div>
+      <div>
+        <Label>Address :</Label>
+        <CustomInput
+          name={"Address"}
+          onChange={(v) => {
+            setFields({ ...fields, address: v });
+          }}
+          value={fields.password}
+          type="textarea"
+        >
+          <div>
+            <MapPinHouse className="h-5 w-5 text-slate-600" />
           </div>
         </CustomInput>
       </div>
@@ -181,7 +198,7 @@ const SignUp = () => {
           </div>
         </CustomInput>
       </div>
-      <div>
+      {/* <div>
         <Label>State :</Label>
         <Select
           onValueChange={(v) => {
@@ -202,7 +219,7 @@ const SignUp = () => {
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
       {formError && (
         <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
           {formError}

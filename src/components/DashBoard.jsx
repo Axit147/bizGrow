@@ -22,8 +22,10 @@ const DashBoard = () => {
           </SheetTrigger>
           <SheetContent side={"left"} className="w-[300px]">
             <SheetHeader>
-              <span>Biz</span>
-              <span>Grow</span>
+              <div className="text-3xl font-extrabold">
+                <span className="text-primary">Biz</span>
+                <span>Grow</span>
+              </div>
             </SheetHeader>
           </SheetContent>
         </Sheet>
