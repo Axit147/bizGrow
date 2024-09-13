@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Building,
   Building2,
+  CloudCog,
   Home,
   KeyRound,
   Mail,
@@ -23,6 +24,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -74,7 +76,7 @@ const SignUp = () => {
   //   "Puducherry",
   // ];
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     setFormError(undefined);
 
     try {
@@ -82,7 +84,7 @@ const SignUp = () => {
         if (!value || value === undefined) {
           setFormError(
             `${
-              key === "companyName"
+              key === "name"
                 ? "Name"
                 : key === "email"
                 ? "Email"
@@ -99,27 +101,26 @@ const SignUp = () => {
         }
       });
 
-      console.log(fields);
+      // console.log(fields);
 
-      setFields({
-        name: "",
-        email: "",
-        phone_no: "",
-        password: "",
-        address: "",
-      });
+      const response = await axios.post('http://127.0.0.1:8000/signup',fields)
+      console.log(response);
+
+      
 
       toast({
         title: "Yay!",
         description: "You have successfully registered.",
       });
 
-      return navigate("/dashboard");
+      // return navigate("/dashboard");
     } catch (error) {
+      console.log(error);
+      setFormError(error.response.data.detail)
       return toast({
         variant: "destructive",
         title: "Uh oh!",
-        description: "All the fields are required.",
+        description: error.response.data.detail,
       });
     }
   };
@@ -175,7 +176,7 @@ const SignUp = () => {
           onChange={(v) => {
             setFields({ ...fields, address: v });
           }}
-          value={fields.password}
+          value={fields.address}
           type="textarea"
         >
           <div>
