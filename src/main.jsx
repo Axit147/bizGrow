@@ -6,6 +6,7 @@ import "./index.css";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import UserProvider from "./hooks/userProvider.jsx";
+import ModalProvider from "./lib/providers/ModalProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

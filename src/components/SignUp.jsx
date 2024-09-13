@@ -23,12 +23,22 @@ import {
   Phone,
   UserRound,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import useSignUptModal from "../hooks/useSignUpModal";
 
 const SignUp = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isOpen, onClose } = useSignUptModal();
   const [fields, setFields] = useState({
     name: undefined,
     email: undefined,
@@ -36,6 +46,13 @@ const SignUp = () => {
     password: undefined,
     address: undefined,
   });
+
+  const onChange = (open) => {
+    if (!open) {
+      onClose();
+    }
+    return;
+  };
 
   const [formError, setFormError] = useState(undefined);
 
@@ -76,7 +93,7 @@ const SignUp = () => {
   //   "Puducherry",
   // ];
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     setFormError(undefined);
 
     try {
@@ -103,10 +120,8 @@ const SignUp = () => {
 
       // console.log(fields);
 
-      const response = await axios.post('http://127.0.0.1:8000/signup',fields)
+      const response = await axios.post("http://127.0.0.1:8000/signup", fields);
       console.log(response);
-
-      
 
       toast({
         title: "Yay!",
@@ -116,7 +131,7 @@ const SignUp = () => {
       // return navigate("/dashboard");
     } catch (error) {
       console.log(error);
-      setFormError(error.response.data.detail)
+      setFormError(error.response.data.detail);
       return toast({
         variant: "destructive",
         title: "Uh oh!",
@@ -126,80 +141,88 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <Label>Name :</Label>
-        <CustomInput
-          name={"Name"}
-          onChange={(v) => {
-            setFields({ ...fields, name: v });
-          }}
-          value={fields.companyName}
-        >
-          <div>
-            <UserRound className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      <div>
-        <Label>Email :</Label>
-        <CustomInput
-          name={"Email"}
-          onChange={(v) => {
-            setFields({ ...fields, email: v });
-          }}
-          value={fields.email}
-        >
-          <div>
-            <Mail className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      <div>
-        <Label>Phone :</Label>
-        <CustomInput
-          name={"Phone"}
-          onChange={(v) => {
-            setFields({ ...fields, phone_no: v });
-          }}
-          value={fields.phone}
-        >
-          <div>
-            <Phone className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      <div>
-        <Label>Address :</Label>
-        <CustomInput
-          name={"Address"}
-          onChange={(v) => {
-            setFields({ ...fields, address: v });
-          }}
-          value={fields.address}
-          type="textarea"
-        >
-          <div>
-            <MapPinHouse className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      <div>
-        <Label>Password :</Label>
-        <CustomInput
-          name={"Password"}
-          onChange={(v) => {
-            setFields({ ...fields, password: v });
-          }}
-          value={fields.password}
-          type="password"
-        >
-          <div>
-            <KeyRound className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      {/* <div>
+    <Dialog open={isOpen} onOpenChange={onChange}>
+      <DialogContent>
+        <DialogTitle>
+          <p className="font-bold text-2xl text-center mb-2 text-slate-700">
+            Register to <span className="text-primary font-extrabold">Biz</span>
+            <span className="font-extrabold">Grow</span>
+          </p>
+        </DialogTitle>
+
+        <div>
+          <Label>Name :</Label>
+          <CustomInput
+            name={"Name"}
+            onChange={(v) => {
+              setFields({ ...fields, name: v });
+            }}
+            value={fields.companyName}
+          >
+            <div>
+              <UserRound className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        <div>
+          <Label>Email :</Label>
+          <CustomInput
+            name={"Email"}
+            onChange={(v) => {
+              setFields({ ...fields, email: v });
+            }}
+            value={fields.email}
+          >
+            <div>
+              <Mail className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        <div>
+          <Label>Phone :</Label>
+          <CustomInput
+            name={"Phone"}
+            onChange={(v) => {
+              setFields({ ...fields, phone_no: v });
+            }}
+            value={fields.phone}
+          >
+            <div>
+              <Phone className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        <div>
+          <Label>Address :</Label>
+          <CustomInput
+            name={"Address"}
+            onChange={(v) => {
+              setFields({ ...fields, address: v });
+            }}
+            value={fields.address}
+            type="textarea"
+          >
+            <div>
+              <MapPinHouse className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        <div>
+          <Label>Password :</Label>
+          <CustomInput
+            name={"Password"}
+            onChange={(v) => {
+              setFields({ ...fields, password: v });
+            }}
+            value={fields.password}
+            type="password"
+          >
+            <div>
+              <KeyRound className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        {/* <div>
         <Label>State :</Label>
         <Select
           onValueChange={(v) => {
@@ -221,15 +244,16 @@ const SignUp = () => {
           </SelectContent>
         </Select>
       </div> */}
-      {formError && (
-        <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
-          {formError}
-        </div>
-      )}
-      <Button onClick={handleSubmit} className="mt-3">
-        Sign Up
-      </Button>
-    </div>
+        {formError && (
+          <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
+            {formError}
+          </div>
+        )}
+        <Button onClick={handleSubmit} className="mt-3">
+          Sign Up
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 };
 

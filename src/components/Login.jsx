@@ -6,14 +6,31 @@ import { useToast } from "@/hooks/use-toast";
 import { KeyRound, Mail } from "lucide-react";
 import { redirect, useNavigate } from "react-router-dom";
 import axios from "axios";
+import useLoginModal from "../hooks/useLoginModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isOpen, onClose } = useLoginModal();
   const [fields, setFields] = useState({
     email: undefined,
     password: undefined,
   });
+
+  const onChange = (open) => {
+    if (!open) {
+      onClose();
+    }
+    return;
+  };
 
   const [formError, setFormError] = useState(undefined);
 
@@ -56,38 +73,46 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <Label>Email :</Label>
-        <CustomInput
-          name={"Email"}
-          onChange={(v) => {
-            setFields({ ...fields, email: v });
-          }}
-          value={fields.email}
-        >
-          <div>
-            <Mail className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
+    <Dialog open={isOpen} onOpenChange={onChange}>
+      <DialogContent>
+        <DialogTitle>
+          <p className="font-bold text-2xl text-center mb-2 text-slate-700">
+            Welcome back to{" "}
+            <span className="text-primary font-extrabold">Biz</span>
+            <span className="font-extrabold">Grow</span>
+          </p>
+        </DialogTitle>
+        <div>
+          <Label>Email :</Label>
+          <CustomInput
+            name={"Email"}
+            onChange={(v) => {
+              setFields({ ...fields, email: v });
+            }}
+            value={fields.email}
+          >
+            <div>
+              <Mail className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
 
-      <div>
-        <Label>Password :</Label>
-        <CustomInput
-          name={"Password"}
-          onChange={(v) => {
-            setFields({ ...fields, password: v });
-          }}
-          value={fields.password}
-          type="password"
-        >
-          <div>
-            <KeyRound className="h-5 w-5 text-slate-600" />
-          </div>
-        </CustomInput>
-      </div>
-      {/* <div>
+        <div>
+          <Label>Password :</Label>
+          <CustomInput
+            name={"Password"}
+            onChange={(v) => {
+              setFields({ ...fields, password: v });
+            }}
+            value={fields.password}
+            type="password"
+          >
+            <div>
+              <KeyRound className="h-5 w-5 text-slate-600" />
+            </div>
+          </CustomInput>
+        </div>
+        {/* <div>
     <Label>State :</Label>
     <Select
       onValueChange={(v) => {
@@ -109,15 +134,16 @@ const Login = () => {
       </SelectContent>
     </Select>
   </div> */}
-      {formError && (
-        <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
-          {formError}
-        </div>
-      )}
-      <Button onClick={handleSubmit} className="mt-3">
-        Log In
-      </Button>
-    </div>
+        {formError && (
+          <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
+            {formError}
+          </div>
+        )}
+        <Button onClick={handleSubmit} className="mt-3">
+          Log In
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 };
 

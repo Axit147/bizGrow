@@ -36,9 +36,14 @@ import { Outlet } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import axios from "axios";
 import { UserContext } from "./hooks/userProvider";
+import useSignUptModal from "./hooks/useSignUpModal";
+import useLoginModal from "./hooks/useLoginModal";
+import ModalProvider from "./lib/providers/ModalProvider";
 
 function App() {
   const user = useContext(UserContext);
+  const signUpModal = useSignUptModal();
+  const loginModal = useLoginModal();
 
   const getUserInfo = async (token) => {
     console.log(user);
@@ -61,6 +66,7 @@ function App() {
 
   return (
     <div className="light">
+      <ModalProvider />
       <nav className="flex justify-between items-center p-5 text-white bg-foreground">
         <div className="font-bold text-3xl">
           <span className="text-primary">Biz</span>
@@ -97,34 +103,23 @@ function App() {
             <div className="text-lg">{user.name}</div>
           ) : (
             <>
-              <Dialog>
-                <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
-                  Sign Up
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle>
-                    <p className="font-bold text-2xl text-center mb-2 text-slate-700">
-                      Register to{" "}
-                      <span className="text-primary font-extrabold">Biz</span>
-                      <span className="font-extrabold">Grow</span>
-                    </p>
-                  </DialogTitle>
-                  <SignUp />
-                </DialogContent>
-              </Dialog>
-              <Dialog>
-                <DialogTrigger className="text-lg text-black px-5 rounded-sm border-none bg-primary p-2 hover:opacity-85 transition">
-                  Log In
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogTitle>
-                    <p className="font-bold text-2xl text-center mb-2 text-slate-700">
-                      Welcom back!
-                    </p>
-                  </DialogTitle>
-                  <Login />
-                </DialogContent>
-              </Dialog>
+              <Button
+                className="text-lg text-black px-5 rounded-sm"
+                onClick={() => {
+                  signUpModal.onOpen();
+                }}
+              >
+                Sign Up
+              </Button>
+
+              <Button
+                className="text-lg text-black px-5 rounded-sm"
+                onClick={() => {
+                  loginModal.onOpen();
+                }}
+              >
+                Log In
+              </Button>
             </>
           )}
         </div>
