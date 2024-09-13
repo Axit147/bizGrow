@@ -64,7 +64,8 @@ const Login = () => {
       });
       // return location.reload();
       // return navigate("/dashboard");
-      getUserInfo();
+      const token = localStorage.getItem("token");
+      getUserInfo(token);
       onClose();
     } catch (error) {
       console.log(error);
