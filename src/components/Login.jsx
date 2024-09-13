@@ -16,11 +16,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { UserContext } from "../hooks/userProvider";
+import { get_user, login } from "../api";
 
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const user = useContext(UserContext)
+  const user = useContext(UserContext);
   const { isOpen, onClose } = useLoginModal();
   const [fields, setFields] = useState({
     email: undefined,
@@ -28,13 +29,9 @@ const Login = () => {
   });
   const getUserInfo = async (token) => {
     console.log(user);
-    const response = await axios.get("http://127.0.0.1:8000/get_user", {
-      headers: {
-        Authorization: token,
-      },
-    });
+    const response = await get_user();
     console.log(response);
-  
+
     user.setName(response.data.user[0].name);
     user.setEmail(response.data.user[0].email);
     user.setAddress(response.data.user[0].address);
@@ -70,7 +67,7 @@ const Login = () => {
 
       // console.log(fields);
 
-      const response = await axios.post("http://127.0.0.1:8000/login", fields);
+      const response = await login(fields);
       // console.log(response);
       localStorage.setItem("token", response.data.token);
 
@@ -81,7 +78,7 @@ const Login = () => {
       // return location.reload();
       // return navigate("/dashboard");
       const token = localStorage.getItem("token");
-      
+
       getUserInfo(token);
       onClose();
     } catch (error) {

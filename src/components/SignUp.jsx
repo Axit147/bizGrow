@@ -35,6 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import useSignUptModal from "../hooks/useSignUpModal";
+import { signup } from "../api";
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -123,7 +124,7 @@ const SignUp = () => {
 
       // console.log(fields);
 
-      const response = await axios.post("http://127.0.0.1:8000/signup", fields);
+      const response = await signup(fields);
       console.log(response);
 
       toast({

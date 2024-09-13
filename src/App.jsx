@@ -40,6 +40,7 @@ import useSignUptModal from "./hooks/useSignUpModal";
 import useLoginModal from "./hooks/useLoginModal";
 import ModalProvider from "./lib/providers/ModalProvider";
 import { useToast } from "@/hooks/use-toast";
+import { create_subscription, get_user } from "./api";
 
 function App() {
   const user = useContext(UserContext);
@@ -47,24 +48,19 @@ function App() {
   const loginModal = useLoginModal();
   const { toast } = useToast();
 
-  const [subEmail, setSubEmail] = useState()
+  const [subEmail, setSubEmail] = useState();
 
   const getUserInfo = async (token) => {
     console.log(user);
-    const response = await axios.get("http://127.0.0.1:8000/get_user", {
-      headers: {
-        Authorization: token,
-      },
-    });
+    const response = await get_user();
     console.log(response);
-  
+
     user.setName(response.data.user[0].name);
     user.setEmail(response.data.user[0].email);
     user.setAddress(response.data.user[0].address);
     user.setPhone_no(response.data.user[0].phone_no);
     user.setId(response.data.user[0].id);
   };
-  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -144,9 +140,13 @@ function App() {
                 Boost your Sales and see how data can be used to surface key
               </p>
               <p>sales insights that help you build revenue</p>
-              <button onClick={()=>{
-                useNavigate()
-              }}>Get Started</button>
+              <button
+                onClick={() => {
+                  useNavigate();
+                }}
+              >
+                Get Started
+              </button>
             </div>
 
             <div className="hero-image">
@@ -511,14 +511,26 @@ function App() {
               </div>
 
               <div className="footer-input">
-                <input value={subEmail} onChange={(e)=>{setSubEmail(e.target.value)}} type="text" placeholder="Email"></input>
-                <button onClick={async()=>{
-                  await axios.post("http://127.0.0.1:8000/create_subscription",{email:subEmail})
-                  toast({
-                    title: "Yay! You have successfully subscribed to our newsletter"
-                  })
-                  setSubEmail('')
-                }}>Subscribe</button>
+                <input
+                  value={subEmail}
+                  onChange={(e) => {
+                    setSubEmail(e.target.value);
+                  }}
+                  type="text"
+                  placeholder="Email"
+                ></input>
+                <button
+                  onClick={async () => {
+                    await create_subscription();
+                    toast({
+                      title:
+                        "Yay! You have successfully subscribed to our newsletter",
+                    });
+                    setSubEmail("");
+                  }}
+                >
+                  Subscribe
+                </button>
                 {/* <div className='footer-input-img'><img src={ArrowImage} alt='ArrowImage'></img></div> */}
               </div>
 
