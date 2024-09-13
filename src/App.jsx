@@ -517,7 +517,7 @@ function App() {
   );
 }
 
-export const getUserInfo = async (token) => {
+const getUserInfo = async (token) => {
   console.log(user);
   const response = await axios.get("http://127.0.0.1:8000/get_user", {
     headers: {
@@ -532,4 +532,6 @@ export const getUserInfo = async (token) => {
   user.setPhone_no(response.data.user[0].phone_no);
   user.setId(response.data.user[0].id);
 };
+
+export { getUserInfo };
 export default App;
