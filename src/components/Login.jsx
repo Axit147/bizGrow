@@ -27,16 +27,17 @@ const Login = () => {
     email: undefined,
     password: undefined,
   });
-  const getUserInfo = async (token) => {
+  const getUserInfo = async () => {
     console.log(user);
     const response = await get_user();
     console.log(response);
 
-    user.setName(response.data.user[0].name);
-    user.setEmail(response.data.user[0].email);
-    user.setAddress(response.data.user[0].address);
-    user.setPhone_no(response.data.user[0].phone_no);
-    user.setId(response.data.user[0].id);
+    user.setName(response.data?.user[0]?.name);
+    user.setEmail(response.data?.user[0]?.email);
+    user.setAddress(response.data?.user[0]?.address);
+    user.setPhone_no(response.data?.user[0]?.phone_no);
+    user.setId(response.data?.user[0]?.id);
+    user.setOrgs(response.data?.user[0]?.orgs);
   };
 
   const onChange = (open) => {
@@ -65,7 +66,7 @@ const Login = () => {
         }
       });
 
-      // console.log(fields);
+      console.log(fields);
 
       const response = await login(fields);
       // console.log(response);
@@ -77,9 +78,8 @@ const Login = () => {
       });
       // return location.reload();
       // return navigate("/dashboard");
-      const token = localStorage.getItem("token");
 
-      getUserInfo(token);
+      localStorage.getItem("token") && getUserInfo();
       onClose();
     } catch (error) {
       console.log(error);
