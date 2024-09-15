@@ -7,6 +7,7 @@ const UserProvider = ({ children }) => {
   const [phone_no, setPhone_no] = useState();
   const [address, setAddress] = useState();
   const [id, setId] = useState();
+  const [orgs, setOrgs] = useState([]);
 
   return (
     <UserContext.Provider
@@ -21,6 +22,8 @@ const UserProvider = ({ children }) => {
         setAddress,
         id,
         setId,
+        orgs,
+        setOrgs
       }}
     >
       {children}

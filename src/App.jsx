@@ -40,17 +40,20 @@ import useSignUptModal from "./hooks/useSignUpModal";
 import useLoginModal from "./hooks/useLoginModal";
 import ModalProvider from "./lib/providers/ModalProvider";
 import { useToast } from "@/hooks/use-toast";
-import { create_subscription, get_user } from "./api";
+import { create_subscription, get_dashboard, get_user } from "./api/index.js";
+import useNewOrgModal from "./hooks/useNewOrgModal.jsx";
 
 function App() {
   const user = useContext(UserContext);
   const signUpModal = useSignUptModal();
   const loginModal = useLoginModal();
+  const newOrgModal = useNewOrgModal();
   const { toast } = useToast();
 
   const [subEmail, setSubEmail] = useState();
+  const navigate = useNavigate()
 
-  const getUserInfo = async (token) => {
+  const getUserInfo = async () => {
     console.log(user);
     const response = await get_user();
     console.log(response);
@@ -60,11 +63,12 @@ function App() {
     user.setAddress(response.data.user[0].address);
     user.setPhone_no(response.data.user[0].phone_no);
     user.setId(response.data.user[0].id);
+    user.setOrgs(response.data.user[0].orgs);
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    token && getUserInfo(token);
+    token && getUserInfo();
   }, []);
 
   return (
@@ -140,13 +144,14 @@ function App() {
                 Boost your Sales and see how data can be used to surface key
               </p>
               <p>sales insights that help you build revenue</p>
-              <button
+              <Button
+              disabled = {!user.id}
                 onClick={() => {
-                  useNavigate();
+                  user.orgs.length() ? (navigate(`${user.id}/dashboard`)) : newOrgModal.onOpen()
                 }}
               >
                 Get Started
-              </button>
+              </Button>
             </div>
 
             <div className="hero-image">
