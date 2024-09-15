@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   LayoutDashboard,
   Menu,
+  NotebookPen,
   ReceiptIndianRupee,
   ShoppingBag,
   UsersRound,
@@ -88,7 +89,7 @@ const SideBar = () => {
             } ${isOpen ? "px-4" : "px-0.5"}`
           }
         >
-          <ReceiptIndianRupee className="h-8 w-8 shrink-0" />
+          <NotebookPen className="h-8 w-8 shrink-0" />
           Invoices
         </NavLink>
       </div>
