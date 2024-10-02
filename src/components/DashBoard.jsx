@@ -34,74 +34,23 @@ const DashBoard = () => {
   const param = useParams();
   console.log(param);
   return (
-    <div className="flex bg-secondary">
+    <div className="flex bg-secondary p-0">
       <SideBar />
-      <div className="w-full">
-        <Routes>
-          <Route path="dashboard" element={<Overview />} />
-          <Route path="customers" element={<Customer />} />
-          <Route path="items" element={<Item />} />
-          <Route path="invoices" element={<Invoice />} />
-        </Routes>
-        <Outlet />
-      </div>
-      {/* <div className="w-full max-w-6xl mx-auto p-4 space-y-8">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {[1, 2, 3].map((cardNumber) => (
-            <Card key={cardNumber} className="flex-1 min-w-[200px]">
-              <CardHeader>
-                <CardTitle>Card {cardNumber}</CardTitle>
-                <CardDescription>
-                  This is card number {cardNumber}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>Card content goes here.</p>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="w-full max-h-full flex flex-col gap-1 p-2 text-lg">
+        <nav className="bg-foreground w-full px-7 p-2 flex items-center rounded-md text-white justify-between">
+          <div>Org name</div>
+          <div>User name</div>
+        </nav>
+        <div className="grow">
+          <Routes>
+            <Route path="dashboard" element={<Overview />} />
+            <Route path="customers" element={<Customer />} />
+            <Route path="items" element={<Item />} />
+            <Route path="invoices" element={<Invoice />} />
+          </Routes>
+          <Outlet />
         </div>
-
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Weekly Data</CardTitle>
-            <CardDescription>Random data visualization</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={graphData}>
-                <XAxis
-                  dataKey="name"
-                  stroke="hsl(var(--foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="hsl(var(--foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--background))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)",
-                    fontSize: "12px",
-                  }}
-                />
-                <Bar
-                  dataKey="total"
-                  fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div> */}
+      </div>
     </div>
   );
 };

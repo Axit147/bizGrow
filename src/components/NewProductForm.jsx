@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 
-const NewCustomerForm = ({ setCustomers }) => {
+const NewProductForm = ({ setProducts }) => {
   const [fields, setFields] = useState({
-    name: undefined,
-    companyName: undefined,
-    email: undefined,
-    phone_no: undefined,
-    address: undefined,
+    name: "",
+    code: "",
+    category: "",
+    purchasePrice: "",
+    sellingPrice: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -21,11 +21,18 @@ const NewCustomerForm = ({ setCustomers }) => {
     setIsLoading(true);
     e.preventDefault();
     console.log(fields);
-    setCustomers((prev) => [...prev, fields]);
+    setProducts((prev) => [...prev, fields]);
     setIsLoading(false);
+    setFields({
+      name: "",
+      code: "",
+      category: "",
+      purchasePrice: "",
+      sellingPrice: "",
+    });
     return toast({
       title: "Yay! Success",
-      description: "New customer added successfully",
+      description: "New product added successfully",
     });
   };
 
@@ -33,7 +40,7 @@ const NewCustomerForm = ({ setCustomers }) => {
     <form onSubmit={handleSubmit}>
       <div className="space-y-2">
         <div>
-          <Label>Name</Label>
+          <Label>Product Name</Label>
           <Input
             required
             onChange={(e) => setFields({ ...fields, name: e.target.value })}
@@ -41,46 +48,45 @@ const NewCustomerForm = ({ setCustomers }) => {
           />
         </div>
         <div>
-          <Label>Company Name</Label>
+          <Label>Product Code</Label>
           <Input
             required
+            onChange={(e) => setFields({ ...fields, code: e.target.value })}
+            value={fields.code}
+          />
+        </div>
+        <div>
+          <Label>Category</Label>
+          <Input
+            required
+            onChange={(e) => setFields({ ...fields, category: e.target.value })}
+            value={fields.category}
+          />
+        </div>
+        <div>
+          <Label>Purchase Price</Label>
+          <Input
+            required
+            type="number"
             onChange={(e) =>
-              setFields({ ...fields, companyName: e.target.value })
+              setFields({ ...fields, purchasePrice: e.target.value })
             }
-            value={fields.companyName}
+            value={fields.purchasePrice}
           />
         </div>
         <div>
-          <Label>Email</Label>
+          <Label>Selling Price</Label>
           <Input
             required
-            onChange={(e) => setFields({ ...fields, email: e.target.value })}
-            value={fields.email}
-          />
-        </div>
-        <div>
-          <Label>Phone No.</Label>
-          <Input
-            required
-            onChange={(e) => setFields({ ...fields, phone_no: e.target.value })}
-            value={fields.phone_no}
-          />
-        </div>
-        <div>
-          <Label>Address</Label>
-          <Input
-            required
-            onChange={(e) => setFields({ ...fields, address: e.target.value })}
-            value={fields.address}
+            type="number"
+            onChange={(e) =>
+              setFields({ ...fields, sellingPrice: e.target.value })
+            }
+            value={fields.sellingPrice}
           />
         </div>
         <div className="pt-2">
-          <Button
-            type="submit"
-            className="w-full"
-            // onClick={handleSubmit}
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
             Add
           </Button>
@@ -90,4 +96,4 @@ const NewCustomerForm = ({ setCustomers }) => {
   );
 };
 
-export default NewCustomerForm;
+export default NewProductForm;

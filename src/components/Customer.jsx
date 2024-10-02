@@ -18,33 +18,58 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Plus, Trash, Trash2 } from "lucide-react";
 import NewCustomerForm from "./NewCustomerForm";
+import { useToast } from "../hooks/use-toast";
 
 const customersData = [
   {
     id: 1,
     name: "John Doe",
     email: "john.doe@example.com",
-    phone: "123-456-7890",
-    totalReceivable: "$200.00",
+    phone_no: "123-456-7890",
+    totalReceivable: "200.00",
   },
   {
     id: 2,
     name: "Jane Smith",
     email: "jane.smith@example.com",
-    phone: "987-654-3210",
-    totalReceivable: "$150.00",
+    phone_no: "987-654-3210",
+    totalReceivable: "150.00",
   },
   // Add more customer data here
 ];
 
-const EditForm = ({ customer }) => {
+const EditForm = ({ customer, setCustomers, customers }) => {
   const [newData, setNewData] = useState(customer);
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    setCustomers(
+      customers.map((customer) =>
+        customer.id === newData.id ? newData : customer
+      )
+    );
+    toast({
+      title: "Changes have been saved successfully",
+    });
+  };
 
   return (
     <div className="space-y-2">
@@ -54,42 +79,65 @@ const EditForm = ({ customer }) => {
       </div>
       <div>
         <Label>Name:</Label>
-        <Input value={newData.name} />
+        <Input
+          onChange={(e) =>
+            setNewData((prev) => ({ ...prev, name: e.target.value }))
+          }
+          value={newData.name}
+        />
       </div>
       <div>
         <Label>Email:</Label>
-        <Input value={newData.email} />
+        <Input
+          onChange={(e) =>
+            setNewData((prev) => ({ ...prev, email: e.target.value }))
+          }
+          value={newData.email}
+        />
       </div>
       <div>
         <Label>Phone:</Label>
-        <Input value={newData.phone} />
+        <Input
+          onChange={(e) =>
+            setNewData((prev) => ({ ...prev, phone_no: e.target.value }))
+          }
+          value={newData.phone_no}
+        />
       </div>
       <div>
         <Label>Total Recievable:</Label>
         <Input value={newData.totalReceivable} readOnly disabled />
       </div>
       <div className="text-right mt-2">
-        <Button className="mt-2">Save</Button>
+        <Button className="mt-2" onClick={handleSave}>
+          Save
+        </Button>
       </div>
     </div>
   );
 };
 
 const CustomerTable = () => {
-  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Track search term
   const [customers, setCustomers] = useState(customersData); // Original data
 
   const handleRowClick = (id) => {
-    setSelectedRowId(id);
-  };
-
-  const handleEdit = (id) => {
-    alert(`Edit customer with ID: ${id}`);
+    if (selectedRowIds.find((sid) => sid === id)) {
+      setSelectedRowIds((prev) => prev.filter((sid) => sid !== id));
+    } else {
+      setSelectedRowIds((prev) => [...prev, id]);
+    }
   };
 
   const handleDelete = (id) => {
-    alert(`Delete customer with ID: ${id}`);
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const handleBulkDelete = () => {
+    selectedRowIds.map((id) =>
+      setCustomers((prev) => prev.filter((c) => c.id !== id))
+    );
   };
 
   const filteredCustomers = customers.filter(
@@ -100,8 +148,7 @@ const CustomerTable = () => {
   );
 
   return (
-    // <TableContainer>
-    <div className="bg-white m-20 rounded-lg p-3 border shadow">
+    <div className="bg-white mx-20 my-14 rounded-lg p-3 border shadow">
       {/* Search Bar */}
       <div className="mb-4 flex gap-2">
         <Input
@@ -119,18 +166,39 @@ const CustomerTable = () => {
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogTitle>Add new customer</DialogTitle>
-            <NewCustomerForm />
+            <DialogHeader>
+              <DialogTitle>Add new customer</DialogTitle>
+              <DialogDescription>
+                Fill in the details to add a new customer. Ensure all fields are
+                complete before submitting.
+              </DialogDescription>
+            </DialogHeader>
+            <NewCustomerForm setCustomers={setCustomers} />
           </DialogContent>
         </Dialog>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="destructive">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" disabled={!selectedRowIds.length}>
               <Trash2 className="h-5 w-5" />
               Delete Selected
             </Button>
-          </DialogTrigger>
-        </Dialog>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                selected customers and remove them from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleBulkDelete}>
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <Table>
         <TableHeader>
@@ -146,19 +214,27 @@ const CustomerTable = () => {
         </TableHeader>
         <TableBody>
           {filteredCustomers.length > 0 ? (
-            filteredCustomers.map((customer) => (
+            filteredCustomers.map((customer, i) => (
               <TableRow
                 key={customer.id}
-                onClick={() => handleRowClick(customer.id)}
+                // onClick={() => handleRowClick(customer.id)}
               >
                 <TableCell>
-                  <Checkbox id={customer.id} />
+                  <Checkbox
+                    id={customer.id}
+                    onCheckedChange={() => handleRowClick(customer.id)}
+                    checked={
+                      selectedRowIds.find((id) => id === customer.id)
+                        ? true
+                        : false
+                    }
+                  />
                 </TableCell>
                 <TableCell>{customer.id}</TableCell>
                 <TableCell>{customer.name}</TableCell>
                 <TableCell>{customer.email}</TableCell>
-                <TableCell>{customer.phone}</TableCell>
-                <TableCell>{customer.totalReceivable}</TableCell>
+                <TableCell>{customer.phone_no}</TableCell>
+                <TableCell>${customer.totalReceivable}</TableCell>
                 <TableCell className="flex gap-2 items-center">
                   <Dialog>
                     <DialogTrigger>
@@ -172,23 +248,38 @@ const CustomerTable = () => {
                           save when you're done.
                         </DialogDescription>
                       </DialogHeader>
-                      <EditForm customer={customer} />
+                      <EditForm
+                        customer={customer}
+                        setCustomers={setCustomers}
+                        customers={customers}
+                      />
                     </DialogContent>
                   </Dialog>
-                  <Dialog>
-                    <DialogTrigger>
-                      <Trash2 className="h-5 w-5" />
-                    </DialogTrigger>
-                    <DialogContent className="bg-muted">
-                      <DialogHeader>
-                        <DialogTitle>Delete Customer</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to delete this customer?
-                        </DialogDescription>
-                      </DialogHeader>
-                      {/* Additional logic for deletion can go here */}
-                    </DialogContent>
-                  </Dialog>
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <Trash2 className="h-5 w-5 text-destructive" />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your selected customers and remove them from
+                          our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(customer.id)}
+                        >
+                          Continue
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))
@@ -200,7 +291,6 @@ const CustomerTable = () => {
             </TableRow>
           )}
         </TableBody>
-        {/* <TableFooter>Optional: Add footer if needed</TableFooter> */}
       </Table>
     </div>
   );

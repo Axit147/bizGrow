@@ -51,7 +51,7 @@ function App() {
   const { toast } = useToast();
 
   const [subEmail, setSubEmail] = useState();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const getUserInfo = async () => {
     console.log(user);
@@ -145,9 +145,13 @@ function App() {
               </p>
               <p>sales insights that help you build revenue</p>
               <Button
-              disabled = {!user.id}
+                disabled={!user.id}
                 onClick={() => {
-                  user.orgs.length() ? (navigate(`${user.id}/dashboard`)) : newOrgModal.onOpen()
+                  if (user.orgs.length) {
+                    return navigate(`${user.id}/dashboard`);
+                  } else {
+                    return newOrgModal.onOpne();
+                  }
                 }}
               >
                 Get Started
