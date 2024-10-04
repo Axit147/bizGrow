@@ -43,8 +43,16 @@ export const update_item = (info, org_id) =>
 export const delete_customer = (cus_id, org_id) =>
   API.delete(`${org_id}/customer/${cus_id}`);
 
+export const get_all_invoice = (org_id) => API.get(`${org_id}/get_invoice`);
+
 export const create_invoice = (info, org_id) =>
   API.post(`${org_id}/create_invoice`, info);
+
+export const delete_invoice = (inv_id, org_id) =>
+  API.delete(`${org_id}/delete_invoice/${inv_id}`);
+
+export const update_status = (inv_id, status, org_id) =>
+  API.patch(`${org_id}/update_invoice/${inv_id}`, status);
 
 export const get_dashboard = (org_id) => API.get(`/dashboard/${org_id}`);
 

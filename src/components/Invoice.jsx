@@ -1,6 +1,6 @@
 // src/components/Invoice.jsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Edit, Plus, Trash, Trash2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import NewInvoiceForm from "./NewInvoiceForm";
@@ -48,34 +49,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-
-// Mock Data for Invoices
-const invoicesData = [
-  {
-    id: 1,
-    invoiceNumber: "INV001",
-    client: "John Doe",
-    amount: 300.5,
-    dueDate: "2024-09-30",
-    status: "Paid",
-  },
-  {
-    id: 2,
-    invoiceNumber: "INV002",
-    client: "Jane Smith",
-    amount: 500.0,
-    dueDate: "2024-10-15",
-    status: "Unpaid",
-  },
-  {
-    id: 3,
-    invoiceNumber: "INV003",
-    client: "Acme Corp",
-    amount: 1200.75,
-    dueDate: "2024-10-01",
-    status: "Paid",
-  },
-];
+import { delete_invoice, get_all_invoice, update_status } from "../api";
+import { useParams } from "react-router-dom";
+import Lottie from "lottie-react";
+import Animation from "../assets/lottie/Animation - 1727850616990.json";
 
 // EditForm for Invoice
 const EditInvoiceForm = ({ invoice, setInvoices, invoices }) => {
@@ -154,7 +131,11 @@ const EditInvoiceForm = ({ invoice, setInvoices, invoices }) => {
 const Invoice = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [invoices, setInvoices] = useState(invoicesData);
+  const [invoices, setInvoices] = useState([]);
+  const [filteredInvoices, setFilteredInvoices] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
+
+  const params = useParams();
 
   const handleRowClick = (id) => {
     if (selectedRowIds.find((sid) => sid === id)) {
@@ -164,23 +145,60 @@ const Invoice = () => {
     }
   };
 
-  const handleDelete = (id) => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+  const handleDelete = async (id) => {
+    const res = await delete_invoice(id, params.id);
+    console.log(res.data);
+    setInvoices((prev) => prev.filter((c) => c.id !== id));
+    toast({
+      title: res.data.Message,
+    });
   };
 
   const handleBulkDelete = () => {
-    selectedRowIds.map((id) =>
-      setInvoices((prev) => prev.filter((inv) => inv.id !== id))
-    );
+    selectedRowIds.map(async (id) => {
+      const res = await delete_invoice(id, params.id);
+      setInvoices((prev) => prev.filter((c) => c.id !== id));
+      setSelectedRowIds((prev) => prev.filter((sid) => sid !== id));
+      toast({
+        title: res.data.Message,
+      });
+    });
   };
 
-  const filteredInvoices = invoices.filter(
-    (invoice) =>
-      invoice.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.id.toString().includes(searchTerm)
-  );
+  const fetchInvoices = async () => {
+    setIsFetching(true);
+    try {
+      const res = await get_all_invoice(params.id);
+      console.log(res.data.Invoices);
+      setInvoices(res.data.Invoices);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  useEffect(() => {
+    setFilteredInvoices(invoices);
+  }, [invoices]);
+
+  useEffect(() => {
+    setFilteredInvoices(() =>
+      invoices.filter(
+        (invoice) =>
+          invoice.customer_id
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          invoice.invoice_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          invoice.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          invoice.id.toString().includes(searchTerm)
+      )
+    );
+  }, [searchTerm]);
 
   return (
     <div className="bg-white mx-20 my-14 rounded-lg p-3 border shadow">
@@ -239,92 +257,105 @@ const Invoice = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Select</TableHead>
-            <TableHead>Invoice ID</TableHead>
-            <TableHead>Invoice Number</TableHead>
-            <TableHead>Client</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredInvoices.length > 0 ? (
-            filteredInvoices.map((invoice, i) => (
-              <TableRow key={invoice.id}>
-                <TableCell>
-                  <Checkbox
-                    id={invoice.id}
-                    onCheckedChange={() => handleRowClick(invoice.id)}
-                    checked={selectedRowIds.includes(invoice.id)}
-                  />
-                </TableCell>
-                <TableCell>{invoice.id}</TableCell>
-                <TableCell>{invoice.invoiceNumber}</TableCell>
-                <TableCell>{invoice.client}</TableCell>
-                <TableCell>${invoice.amount}</TableCell>
-                <TableCell>{invoice.dueDate}</TableCell>
-                <TableCell>{invoice.status}</TableCell>
-                <TableCell className="flex gap-2 items-center">
-                  <Dialog>
-                    <DialogTrigger>
-                      <Edit className="h-5 w-5" />
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Edit Invoice Details</DialogTitle>
-                        <DialogDescription>
-                          Make changes to your invoice's details here. Click
-                          save when you're done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <EditInvoiceForm
-                        invoice={invoice}
-                        setInvoices={setInvoices}
-                        invoices={invoices}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Trash2 className="h-5 w-5 text-destructive" />
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your selected invoice.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(invoice.id)}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+      <ScrollArea className="h-[65vh]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Select</TableHead>
+              <TableHead>Invoice ID</TableHead>
+              <TableHead>Client</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Due Date</TableHead>
+              <TableHead>Paid</TableHead>
+              <TableHead>Delete</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredInvoices.length > 0 ? (
+              filteredInvoices.map((invoice, i) => (
+                <TableRow key={invoice.id}>
+                  <TableCell>
+                    <Checkbox
+                      id={invoice.id}
+                      onCheckedChange={() => handleRowClick(invoice.id)}
+                      checked={selectedRowIds.includes(invoice.id)}
+                    />
+                  </TableCell>
+                  <TableCell>INV-{invoice.id.split("-", 1)}</TableCell>
+                  <TableCell>{invoice.customer_id}</TableCell>
+                  <TableCell>₹{invoice.total_amount}</TableCell>
+                  <TableCell>{invoice.overdue_date}</TableCell>
+                  <TableCell>
+                    <Checkbox
+                      onCheckedChange={async () => {
+                        await update_status(
+                          invoice.id,
+                          invoice.status === "paid"
+                            ? { status: "unpaid" }
+                            : { status: "paid" },
+                          params.id
+                        );
+                        setFilteredInvoices((prevInvoices) =>
+                          prevInvoices.map((i) => {
+                            if (i.id === invoice.id) {
+                              return {
+                                ...i,
+                                status: i.status === "paid" ? "unpaid" : "paid",
+                              };
+                            }
+                            return i; // Ensure you return the unmodified item if the ID doesn't match
+                          })
+                        );
+                      }}
+                      checked={invoice.status === "paid" ? true : false}
+                    />
+                  </TableCell>
+                  <TableCell className="flex gap-2 items-center">
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Trash2 className="h-5 w-5 text-destructive" />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your selected invoice.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(invoice.id)}
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : isFetching ? (
+              <div className="fixed z-10 top-1/2 left-1/2 flex items-center">
+                <Lottie
+                  className="h-32 w-32 mx-auto"
+                  animationData={Animation}
+                />
+                {/* <Loader2 className=" mx-auto animate-spin h-10 w-10" /> */}
+              </div>
+            ) : (
+              <TableRow>
+                <TableCell colSpan="7" className="text-center">
+                  No matching items found.
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan="8" className="text-center">
-                No matching invoices found.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 };

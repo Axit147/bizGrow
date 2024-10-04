@@ -98,9 +98,21 @@ const NewInvoiceForm = ({ setInvoices }) => {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      const cusRes = await get_customer_names(params.id);
+      console.log(cusRes.data);
+      setCustomers(cusRes.data.Data);
+      const prodRes = await get_item_names(params.id);
+      console.log(prodRes.data);
+      setProducts(prodRes.data.Data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    fetchProducts();
-    fetchCustomers();
+    fetchData();
   }, []);
 
   const [customers, setCustomers] = useState([]);
@@ -173,18 +185,36 @@ const NewInvoiceForm = ({ setInvoices }) => {
     const info = {
       invoice_no: "INV-" + JSON.stringify(Math.floor(Math.random() * 10000)),
       customer_id: selectedCustomer.id,
-      invoice_date: new Date().toISOString(),
+      invoice_date: addDays(billDate, 1),
+      overdue_date: addDays(dueDate, 1),
       items: purchasedProducts.map((p) => ({
         item_id: p.id,
         quantity: p.quantity,
         unit_price: p.sell_price,
       })),
-      status: isPaid ? "Paid" : "Unpaid",
+      status: isPaid ? "paid" : "unpaid",
     };
     try {
-      const res = await create_invoice(info);
+      const res = await create_invoice(info, params.id);
       console.log(res);
-    } catch (error) {}
+      setInvoices((prev) => [res.data.Invoice_responce, ...prev]);
+      toast({
+        title: "Yay! Success.",
+        description: res.data.Message,
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Something went wrong!",
+        variant: "destruvtive",
+        description:
+          error.response.data.detail[0].msg ||
+          error.response.data.detail ||
+          error.message,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -363,7 +393,11 @@ const NewInvoiceForm = ({ setInvoices }) => {
             />
             Paid
           </span>
-          <Button disabled={!purchasedProducts.length} onClick={handleSave}>
+          <Button
+            disabled={!purchasedProducts.length || isSaving}
+            onClick={handleSave}
+          >
+            {isSaving && <Loader2 className="animate-spin" />}
             Save
           </Button>
         </div>

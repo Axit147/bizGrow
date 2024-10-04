@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -33,7 +34,7 @@ import Animation from "../assets/lottie/Animation - 1727850616990.json";
 const generateRandomData = (min, max) => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   return days.map((day) => ({
-    name: day,
+    x_axis: day,
     value: Math.floor(Math.random() * (max - min + 1)) + min,
   }));
 };
@@ -42,7 +43,7 @@ const BarChartComponent = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <BarChart data={data}>
       <XAxis
-        dataKey="name"
+        dataKey="x"
         stroke="hsl(var(--foreground))"
         fontSize={12}
         tickLine={false}
@@ -55,6 +56,7 @@ const BarChartComponent = ({ data }) => (
         axisLine={false}
         tickFormatter={(value) => `${value}`}
       />
+      <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="5 5" />
       <Tooltip
         contentStyle={{
           backgroundColor: "hsl(var(--background))",
@@ -70,9 +72,9 @@ const BarChartComponent = ({ data }) => (
 
 const LineChartComponent = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
-    <LineChart data={data}>
+    <LineChart className="" data={data}>
       <XAxis
-        dataKey="name"
+        dataKey="x"
         stroke="hsl(var(--foreground))"
         fontSize={12}
         tickLine={false}
@@ -106,7 +108,6 @@ const LineChartComponent = ({ data }) => (
 );
 
 const Overview = () => {
-  const graphData = generateRandomData(25, 200);
   const params = useParams();
   const [data, setData] = useState(null);
 
@@ -130,7 +131,7 @@ const Overview = () => {
   }
 
   return (
-    <div className="w-full mx-auto p-4 flex flex-col justify-evenly h-full gap-4">
+    <ScrollArea className="h-full w-full gap-5 p-4 flex flex-col">
       <div className="flex flex-col sm:flex-row gap-4">
         <Card className="flex-1 min-w-[200px]">
           <CardHeader>
@@ -147,9 +148,18 @@ const Overview = () => {
               <ShoppingCart className="h-7 w-7" />
             </div>
             <div>
-              <p className="font-bold text-2xl">145</p>
+              <p className="font-bold text-2xl">₹{data.today_sales}</p>
               <p className="text-sm font-semibold text-slate-400">
-                <span className="text-primary">12%</span> increase
+                <span
+                  className={
+                    data.daily_percentage_change > 0
+                      ? "text-primary"
+                      : "text-destructive"
+                  }
+                >
+                  {Math.floor(data.daily_percentage_change)}%
+                </span>{" "}
+                {data.daily_percentage_change > 0 ? "Increase" : "decrease"}
               </p>
             </div>
           </CardContent>
@@ -159,7 +169,7 @@ const Overview = () => {
             <CardTitle>
               Revenue{" "}
               <span className="text-sm font-semibold text-slate-400">
-                | Today
+                | Total
               </span>
             </CardTitle>
             <CardDescription>Total revenue generated today.</CardDescription>
@@ -169,52 +179,54 @@ const Overview = () => {
               <HandCoins className="h-7 w-7" />
             </div>
             <div>
-              <p className="font-bold text-2xl">₹145</p>
-              <p className="text-sm font-semibold text-slate-400">
+              <p className="font-bold text-2xl">₹{data.total_revenue}</p>
+              {/* <p className="text-sm font-semibold text-slate-400">
                 <span className="text-primary">12%</span> increase
-              </p>
+              </p> */}
             </div>
           </CardContent>
         </Card>
         <Card className="flex-1 min-w-[200px]">
           <CardHeader>
             <CardTitle>
-              Payment recieved{" "}
+              Outstanding payment{" "}
               <span className="text-sm font-semibold text-slate-400">
                 | Today
               </span>
             </CardTitle>
-            <CardDescription>Total payment recieved today.</CardDescription>
+            <CardDescription>
+              Total payment outstanding till today.
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center gap-3">
             <div className="bg-primary/15 text-green-800 rounded-full w-fit p-2">
               <IndianRupee className="h-7 w-7" />
             </div>
             <div>
-              <p className="font-bold text-2xl">₹145</p>
-              <p className="text-sm font-semibold text-slate-400">
+              <p className="font-bold text-2xl">₹{data.outstanding_amount}</p>
+              {/* <p className="text-sm font-semibold text-slate-400">
                 <span className="text-primary">12%</span> increase
-              </p>
+              </p> */}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* <Card className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+        <Card className="w-full">
           <CardHeader>
-            <CardTitle>Weekly Bar Chart</CardTitle>
+            <CardTitle>Mothly Bar Chart</CardTitle>
             <CardDescription>Random data visualization</CardDescription>
           </CardHeader>
           <CardContent>
-            <BarChartComponent data={graphData} />
+            <BarChartComponent data={data?.sales_chart_data} />
           </CardContent>
-        </Card> */}
+        </Card>
 
         <Card className="w-full">
-          <CardHeader className="flex-row items-center justify-between border-b-2 px-0 mx-6 mb-6">
-            <CardTitle className="mb-0">Weekly Sales Report</CardTitle>
-            <Select>
+          <CardHeader>
+            <CardTitle>Monthly Sales Report</CardTitle>
+            {/* <Select>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Duration" />
               </SelectTrigger>
@@ -225,15 +237,15 @@ const Overview = () => {
                 <SelectItem value="year">last Year</SelectItem>
                 <SelectItem value="total">Till Date</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
             {/* </div> */}
           </CardHeader>
           <CardContent>
-            <LineChartComponent data={graphData} />
+            <LineChartComponent data={data?.sales_chart_data} />
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 
