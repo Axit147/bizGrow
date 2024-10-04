@@ -1,6 +1,6 @@
 // src/components/Item.jsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -31,72 +31,50 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, Plus, Trash, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Trash, Trash2 } from "lucide-react";
 import NewProductForm from "./NewProductForm";
 import { useToast } from "../hooks/use-toast";
-
-const productsData = [
-  {
-    id: 1,
-    code: "P001",
-    name: "Wireless Mouse",
-    purchasePrice: 10.99,
-    sellingPrice: 15.99,
-    description: "A smooth, wireless mouse with a sleek design.",
-    category: "Electronics",
-  },
-  {
-    id: 2,
-    code: "P002",
-    name: "Mechanical Keyboard",
-    purchasePrice: 50.0,
-    sellingPrice: 75.0,
-    description: "A durable mechanical keyboard with RGB lighting.",
-    category: "Electronics",
-  },
-  {
-    id: 3,
-    code: "P003",
-    name: "Running Shoes",
-    purchasePrice: 45.0,
-    sellingPrice: 60.0,
-    description: "Comfortable running shoes with excellent grip.",
-    category: "Sportswear",
-  },
-  {
-    id: 4,
-    code: "P004",
-    name: "Office Chair",
-    purchasePrice: 100.0,
-    sellingPrice: 150.0,
-    description: "Ergonomic office chair with lumbar support.",
-    category: "Furniture",
-  },
-  {
-    id: 5,
-    code: "P005",
-    name: "Smartphone Case",
-    purchasePrice: 5.0,
-    sellingPrice: 10.0,
-    description: "Protective case for smartphones with a sleek design.",
-    category: "Accessories",
-  },
-];
+import { useParams } from "react-router-dom";
+import { get_all_items, update_item } from "../api";
+import Lottie from "lottie-react";
+import Animation from "../assets/lottie/Animation - 1727850616990.json";
 
 const EditForm = ({ product, setProducts, products }) => {
   const [newData, setNewData] = useState(product);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = () => {
-    setProducts(
-      products.map((product) => (product.id === newData.id ? newData : product))
-    );
-    toast({
-      title: "Changes have been saved successfully",
-    });
+  const { toast } = useToast();
+  const params = useParams();
+  const handleSave = async () => {
+    console.log(newData);
+    setIsLoading(true);
+    try {
+      const res = await update_item(newData, params.id);
+      res &&
+        setProducts(
+          products.map((product) =>
+            product.id === newData.id ? newData : product
+          )
+        );
+      toast({
+        title: "Changes have been saved successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      setNewData(product);
+      toast({
+        title: "Something went wrong!",
+        description:
+          error.response.data.detail[0].msg || error.response.data.detail,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,44 +92,37 @@ const EditForm = ({ product, setProducts, products }) => {
           value={newData.name}
         />
       </div>
+
       <div>
-        <Label>Code:</Label>
+        <Label>Description:</Label>
         <Input
           onChange={(e) =>
-            setNewData((prev) => ({ ...prev, code: e.target.value }))
+            setNewData((prev) => ({ ...prev, description: e.target.value }))
           }
-          value={newData.code}
-        />
-      </div>
-      <div>
-        <Label>Category:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, category: e.target.value }))
-          }
-          value={newData.category}
+          value={newData.description}
         />
       </div>
       <div>
         <Label>Purchase Price:</Label>
         <Input
           onChange={(e) =>
-            setNewData((prev) => ({ ...prev, purchasePrice: e.target.value }))
+            setNewData((prev) => ({ ...prev, purchase_price: e.target.value }))
           }
-          value={newData.purchasePrice}
+          value={newData.purchase_price}
         />
       </div>
       <div>
         <Label>Selling Price:</Label>
         <Input
           onChange={(e) =>
-            setNewData((prev) => ({ ...prev, sellingPrice: e.target.value }))
+            setNewData((prev) => ({ ...prev, sell_price: e.target.value }))
           }
-          value={newData.sellingPrice}
+          value={newData.sell_price}
         />
       </div>
       <div className="text-right mt-2">
-        <Button className="mt-2" onClick={handleSave}>
+        <Button className="mt-2" onClick={handleSave} disabled={isLoading}>
+          {isLoading && <Loader2 className="animate-spin" />}
           Save
         </Button>
       </div>
@@ -162,7 +133,10 @@ const EditForm = ({ product, setProducts, products }) => {
 const Item = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Track search term
-  const [products, setProducts] = useState(productsData); // Original data
+  const [products, setProducts] = useState([]); // Original data
+
+  const [isFetching, setIsFetching] = useState(false);
+  const params = useParams();
 
   const handleRowClick = (id) => {
     if (selectedRowIds.find((sid) => sid === id)) {
@@ -181,6 +155,23 @@ const Item = () => {
       setProducts((prev) => prev.filter((c) => c.id !== id))
     );
   };
+
+  const fetchCustomers = async () => {
+    try {
+      setIsFetching(true);
+      const res = await get_all_items(params.id);
+      console.log(res.data);
+      setProducts(res.data.Data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const filteredProducts = products.filter(
     (product) =>
@@ -244,102 +235,107 @@ const Item = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Select</TableHead>
-            <TableHead>Product ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Code</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Purchase Price</TableHead>
-            <TableHead>Selling Price</TableHead>
-            <TableHead>Margin</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product, i) => (
-              <TableRow key={product.id}>
-                <TableCell>
-                  <Checkbox
-                    id={product.id}
-                    onCheckedChange={() => handleRowClick(product.id)}
-                    checked={
-                      selectedRowIds.find((id) => id === product.id)
-                        ? true
-                        : false
-                    }
-                  />
-                </TableCell>
-                <TableCell>{product.id}</TableCell>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.code}</TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell>${product.purchasePrice}</TableCell>
-                <TableCell>${product.sellingPrice}</TableCell>
-                <TableCell>
-                  ${product.sellingPrice - product.purchasePrice}
-                </TableCell>
-                <TableCell className="flex gap-2 items-center">
-                  <Dialog>
-                    <DialogTrigger>
-                      <Edit className="h-5 w-5" />
-                    </DialogTrigger>
-                    <DialogContent className="bg-muted">
-                      <DialogHeader>
-                        <DialogTitle>Edit Product Information</DialogTitle>
-                        <DialogDescription>
-                          Make changes to your product's details here. Click
-                          save when you're done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <EditForm
-                        product={product}
-                        setProducts={setProducts}
-                        products={products}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Trash2 className="h-5 w-5 text-destructive" />
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your selected product and remove it from our
-                          servers.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(product.id)}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+      <ScrollArea className="h-[65vh]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Select</TableHead>
+              <TableHead>Product ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Purchase Price</TableHead>
+              <TableHead>Selling Price</TableHead>
+              <TableHead>Profit Margin</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product, i) => (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <Checkbox
+                      id={product.id}
+                      onCheckedChange={() => handleRowClick(product.id)}
+                      checked={
+                        selectedRowIds.find((id) => id === product.id)
+                          ? true
+                          : false
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>ITM-{product.id.split("-", 1)}</TableCell>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.description}</TableCell>
+                  <TableCell>${product.purchase_price}</TableCell>
+                  <TableCell>${product.sell_price}</TableCell>
+                  <TableCell>${product.profit}</TableCell>
+                  <TableCell className="flex gap-2 items-center">
+                    <Dialog>
+                      <DialogTrigger>
+                        <Edit className="h-5 w-5" />
+                      </DialogTrigger>
+                      <DialogContent className="bg-muted">
+                        <DialogHeader>
+                          <DialogTitle>Edit Product Information</DialogTitle>
+                          <DialogDescription>
+                            Make changes to your product's details here. Click
+                            save when you're done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <EditForm
+                          product={product}
+                          setProducts={setProducts}
+                          products={products}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Trash2 className="h-5 w-5 text-destructive" />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your selected product and remove it from our
+                            servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(product.id)}
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : isFetching ? (
+              <div className="fixed z-10 top-1/2 left-1/2 flex items-center">
+                <Lottie
+                  className="h-32 w-32 mx-auto"
+                  animationData={Animation}
+                />
+                {/* <Loader2 className=" mx-auto animate-spin h-10 w-10" /> */}
+              </div>
+            ) : (
+              <TableRow>
+                <TableCell colSpan="7" className="text-center">
+                  No matching items found.
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan="8" className="text-center">
-                No matching products found.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-        {/* <TableFooter>Optional: Add footer if needed</TableFooter> */}
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 };

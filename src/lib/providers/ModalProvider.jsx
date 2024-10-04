@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import SignUp from "../../components/SignUp";
 import Login from "../../components/Login";
+import NewOrgModal from "../../components/NewOrgModal";
 
 const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -17,6 +18,7 @@ const ModalProvider = () => {
     <div>
       <SignUp />
       <Login />
+      <NewOrgModal />
     </div>
   );
 };

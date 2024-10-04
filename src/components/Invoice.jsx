@@ -37,6 +37,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Plus, Trash, Trash2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import NewInvoiceForm from "./NewInvoiceForm";
+import {
+  Drawer,
+  DrawerPortal,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 // Mock Data for Invoices
 const invoicesData = [
@@ -181,26 +192,29 @@ const Invoice = () => {
           placeholder="Search by client, invoice number, or status"
           className="w-full p-2 border border-gray-300 rounded"
         />
-        <Dialog>
-          <DialogTrigger asChild>
+        <Drawer>
+          <DrawerTrigger asChild>
             <Button>
-              <Plus className="h-5 w-5" />
+              <Plus />
               New Invoice
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add new invoice</DialogTitle>
-              <DialogDescription>
-                Fill in the details to create a new invoice. Ensure all fields
-                are complete before submitting.
-              </DialogDescription>
-              <NewInvoiceForm setInvoices={setInvoices} />
-            </DialogHeader>
-            {/* You can create and import a NewInvoiceForm similar to NewProductForm */}
-            {/* <NewInvoiceForm setInvoices={setInvoices} /> */}
-          </DialogContent>
-        </Dialog>
+          </DrawerTrigger>
+          <DrawerContent className="px-4">
+            <DrawerHeader>
+              <DrawerTitle>Create Invoice</DrawerTitle>
+              {/* <DrawerDescription>
+                This action cannot be undone.
+                </DrawerDescription> */}
+            </DrawerHeader>
+            <NewInvoiceForm setInvoices={setInvoices} />
+            <DrawerFooter>
+              <DrawerClose>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={!selectedRowIds.length}>

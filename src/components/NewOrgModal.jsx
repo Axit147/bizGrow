@@ -1,19 +1,73 @@
-import React from "react";
+import React, { useState } from "react";
 import useNewOrgModal from "../hooks/useNewOrgModal";
-import { BookMarked, Building2, Factory, Globe, Globe2, MapPinHouse, UserRound } from "lucide-react";
+import {
+  BookMarked,
+  Building2,
+  Factory,
+  Globe,
+  Globe2,
+  Loader2,
+  MapPin,
+  MapPinHouse,
+  UserRound,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import CustomInput from "./CustomInput";
+import { create_org } from "../api";
+import { useNavigate } from "react-router-dom";
 
 const NewOrgModal = () => {
+  const { isOpen, onClose } = useNewOrgModal();
+  const [formError, setFormError] = useState(undefined);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [fields, setFields] = useState({
+    name: "",
+    industry: "",
+    country: "",
+    state: "",
+    gst_no: "",
+  });
 
-    const {isOpen,onClose} = useNewOrgModal()
+  const onChange = (open) => {
+    if (!open) {
+      onClose();
+    }
+    return;
+  };
 
-    const onChange = (open) => {
-        if (!open) {
-          onClose();
-        }
-        return;
-      };
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      console.log(fields);
+      const res = await create_org(fields);
+      navigate(`${res.data.Org_id}`);
+    } catch (error) {
+      console.log(error.message);
+      setFormError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-     const statesAndUTs = [
+  const statesAndUTs = [
     "Andhra Pradesh",
     "Arunachal Pradesh",
     "Assam",
@@ -55,13 +109,13 @@ const NewOrgModal = () => {
       <DialogContent>
         <DialogTitle>
           <p className="font-bold text-2xl text-center mb-2 text-slate-700">
-           Create a new Organization
+            Create a new Organization
           </p>
         </DialogTitle>
         <div>
-          <Label>Name</Label>
+          <Label>Organization Name :</Label>
           <CustomInput
-            name={"Name"}
+            name={"Organization Name"}
             onChange={(v) => {
               setFields({ ...fields, name: v });
             }}
@@ -94,17 +148,15 @@ const NewOrgModal = () => {
             onValueChange={(v) => {
               setFields({ ...fields, country: v });
             }}
-            defaultValue={'India'}
+            defaultValue={"India"}
             value={fields.country}
           >
             <SelectTrigger className="w-full justify-start p-2 gap-2">
               <Globe2 className="h-5 w-5 text-slate-600" />
-              <SelectValue placeholder="State" />
+              <SelectValue placeholder="Country" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem key={s} value={s}>
-                India
-                </SelectItem>
+              <SelectItem value={"India"}>India</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -150,7 +202,7 @@ const NewOrgModal = () => {
           <CustomInput
             name={"GST no."}
             onChange={(v) => {
-              setFields({ ...fields, gst: v });
+              setFields({ ...fields, gst_no: v });
             }}
             value={fields.gst}
             type=""
@@ -167,7 +219,7 @@ const NewOrgModal = () => {
         )}
         <Button onClick={handleSubmit} className="mt-3" disabled={isLoading}>
           {isLoading && <Loader2 className="animate-spin" />}
-          Log In
+          Register
         </Button>
       </DialogContent>
     </Dialog>

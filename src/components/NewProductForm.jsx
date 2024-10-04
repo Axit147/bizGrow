@@ -4,36 +4,52 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+import { useParams } from "react-router-dom";
+import { create_item } from "../api";
 
 const NewProductForm = ({ setProducts }) => {
   const [fields, setFields] = useState({
     name: "",
-    code: "",
-    category: "",
-    purchasePrice: "",
-    sellingPrice: "",
+    description: "",
+    purchase_price: "",
+    sell_price: "",
   });
+
+  const params = useParams();
 
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
-    console.log(fields);
-    setProducts((prev) => [...prev, fields]);
-    setIsLoading(false);
-    setFields({
-      name: "",
-      code: "",
-      category: "",
-      purchasePrice: "",
-      sellingPrice: "",
-    });
-    return toast({
-      title: "Yay! Success",
-      description: "New product added successfully",
-    });
+    try {
+      console.log(fields);
+      const res = await create_item(fields, params.id);
+      console.log(res.data.Item);
+      setProducts((prev) => [res.data.Item, ...prev]);
+      setIsLoading(false);
+      setFields({
+        name: "",
+        description: "",
+        purchase_price: "",
+        sell_price: "",
+      });
+      return toast({
+        title: "Yay! Success",
+        description: "New product added successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return toast({
+        title: "Something went wrong!",
+        variant: "destructive",
+        description:
+          error.response.data.detail[0].msg || error.response.data.detail,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,20 +63,15 @@ const NewProductForm = ({ setProducts }) => {
             value={fields.name}
           />
         </div>
+
         <div>
-          <Label>Product Code</Label>
+          <Label>Description</Label>
           <Input
             required
-            onChange={(e) => setFields({ ...fields, code: e.target.value })}
-            value={fields.code}
-          />
-        </div>
-        <div>
-          <Label>Category</Label>
-          <Input
-            required
-            onChange={(e) => setFields({ ...fields, category: e.target.value })}
-            value={fields.category}
+            onChange={(e) =>
+              setFields({ ...fields, description: e.target.value })
+            }
+            value={fields.description}
           />
         </div>
         <div>
@@ -69,9 +80,9 @@ const NewProductForm = ({ setProducts }) => {
             required
             type="number"
             onChange={(e) =>
-              setFields({ ...fields, purchasePrice: e.target.value })
+              setFields({ ...fields, purchase_price: e.target.value })
             }
-            value={fields.purchasePrice}
+            value={fields.purchase_price}
           />
         </div>
         <div>
@@ -80,9 +91,9 @@ const NewProductForm = ({ setProducts }) => {
             required
             type="number"
             onChange={(e) =>
-              setFields({ ...fields, sellingPrice: e.target.value })
+              setFields({ ...fields, sell_price: e.target.value })
             }
-            value={fields.sellingPrice}
+            value={fields.sell_price}
           />
         </div>
         <div className="pt-2">

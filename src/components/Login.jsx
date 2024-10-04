@@ -32,12 +32,12 @@ const Login = () => {
     const response = await get_user();
     console.log(response);
 
-    user.setName(response.data?.user[0]?.name);
-    user.setEmail(response.data?.user[0]?.email);
-    user.setAddress(response.data?.user[0]?.address);
-    user.setPhone_no(response.data?.user[0]?.phone_no);
-    user.setId(response.data?.user[0]?.id);
-    user.setOrgs(response.data?.user[0]?.orgs);
+    user.setName(response.data?.user?.name);
+    user.setEmail(response.data?.user?.email);
+    user.setAddress(response.data?.user?.address);
+    user.setPhone_no(response.data?.user?.phone_no);
+    user.setId(response.data?.user?.id);
+    user.setOrgs(response.data?.user?.orgs);
   };
 
   const onChange = (open) => {

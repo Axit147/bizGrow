@@ -32,6 +32,16 @@ import {
 } from "@/components/ui/dialog";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+
 import { Outlet, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -40,8 +50,14 @@ import useSignUptModal from "./hooks/useSignUpModal";
 import useLoginModal from "./hooks/useLoginModal";
 import ModalProvider from "./lib/providers/ModalProvider";
 import { useToast } from "@/hooks/use-toast";
-import { create_subscription, get_dashboard, get_user } from "./api/index.js";
+import {
+  create_subscription,
+  get_dashboard,
+  get_user,
+  update_user,
+} from "./api/index.js";
 import useNewOrgModal from "./hooks/useNewOrgModal.jsx";
+import { Loader2, LogOut, UserCircle2 } from "lucide-react";
 
 function App() {
   const user = useContext(UserContext);
@@ -51,6 +67,15 @@ function App() {
   const { toast } = useToast();
 
   const [subEmail, setSubEmail] = useState();
+
+  const [isEditable, setIsEditable] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [newInfo, setNewInfo] = useState({
+    name: user.name,
+    phone_no: user.phone_no,
+    address: user.address,
+  });
+
   const navigate = useNavigate();
 
   const getUserInfo = async () => {
@@ -58,18 +83,72 @@ function App() {
     const response = await get_user();
     console.log(response);
 
-    user.setName(response.data.user[0].name);
-    user.setEmail(response.data.user[0].email);
-    user.setAddress(response.data.user[0].address);
-    user.setPhone_no(response.data.user[0].phone_no);
-    user.setId(response.data.user[0].id);
-    user.setOrgs(response.data.user[0].orgs);
+    user.setName(response.data.user.name);
+    user.setEmail(response.data.user.email);
+    user.setAddress(response.data.user.address);
+    user.setPhone_no(response.data.user.phone_no);
+    user.setId(response.data.user.id);
+    user.setOrgs(response.data.user.orgs);
+
+    setNewInfo({
+      name: response.data.user.name,
+      address: response.data.user.address,
+      phone_no: response.data.user.phone_no,
+    });
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     token && getUserInfo();
+    console.log(user);
   }, []);
+
+  useEffect(() => {
+    setNewInfo({
+      name: user.name,
+      phone_no: user.phone_no,
+      address: user.address,
+    });
+  }, [user]);
+
+  const handleEdit = async () => {
+    if (!isEditable) {
+      return setIsEditable(true);
+    } else {
+      setIsUpdating(true);
+      try {
+        const res = await update_user(newInfo);
+        user.setName(newInfo.name);
+        user.setAddress(newInfo.address);
+        user.setPhone_no(newInfo.phone_no);
+        return toast({
+          title: res.data.Message,
+        });
+      } catch (error) {
+        setNewInfo({
+          name: user.name,
+          phone_no: user.phone_no,
+          address: user.address,
+        });
+        return toast({
+          title: "Something went wrong!",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUpdating(false);
+        setIsEditable(false);
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    user.setName(null);
+    user.setEmail(null);
+    user.setAddress(null);
+    user.setPhone_no(null);
+    user.setId(null);
+    user.setOrgs(null);
+  };
 
   return (
     <div className="light">
@@ -107,7 +186,91 @@ function App() {
         </div>
         <div className="flex gap-2">
           {user.id ? (
-            <div className="text-lg">{user.name}</div>
+            <Sheet>
+              <SheetTrigger>
+                <div className="">
+                  {/* {user.name} */}
+                  <UserCircle2 className="h-10 w-10" />
+                </div>
+              </SheetTrigger>
+              <SheetContent className="flex flex-col">
+                <SheetHeader>
+                  <SheetTitle>Profile</SheetTitle>
+                  {/* <SheetDescription>
+                    This action cannot be undone. This will permanently delete
+                    your account and remove your data from our servers.
+                  </SheetDescription> */}
+                </SheetHeader>
+                <div className="space-y-3 mt-4 grow">
+                  <div>
+                    Email: <Input value={user.email} disabled />
+                  </div>
+                  <div>
+                    Name:{" "}
+                    <Input
+                      value={newInfo.name}
+                      readOnly={!isEditable}
+                      onChange={(e) =>
+                        setNewInfo((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    Phone no:{" "}
+                    <Input
+                      value={newInfo.phone_no}
+                      readOnly={!isEditable}
+                      onChange={(e) =>
+                        setNewInfo((prev) => ({
+                          ...prev,
+                          phone_no: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    Address:{" "}
+                    <Input
+                      value={newInfo.address}
+                      readOnly={!isEditable}
+                      onChange={(e) =>
+                        setNewInfo((prev) => ({
+                          ...prev,
+                          address: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <Button onClick={handleEdit} disabled={isUpdating}>
+                      {isUpdating && <Loader2 className="animate-spin" />}
+                      {isEditable ? "Update Profile" : "Edit Profile"}
+                    </Button>
+                    {isEditable && (
+                      <Button
+                        onClick={() => {
+                          setIsEditable(false);
+                        }}
+                        variant={"destructive"}
+                      >
+                        Cancle
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  onClick={handleLogout}
+                  className="bg-black text-white w-full hover:bg-slate-700 duration-200 transition"
+                >
+                  <LogOut />
+                  Log Out
+                </Button>
+              </SheetContent>
+            </Sheet>
           ) : (
             <>
               <Button
@@ -148,10 +311,9 @@ function App() {
                 disabled={!user.id}
                 onClick={() => {
                   if (user.orgs.length) {
-                    return navigate(`${user.id}/dashboard`);
-                  } else {
-                    return newOrgModal.onOpne();
+                    return navigate(`${user.orgs[0]}/dashboard`);
                   }
+                  newOrgModal.onOpen();
                 }}
               >
                 Get Started

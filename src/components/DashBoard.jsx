@@ -34,7 +34,7 @@ const DashBoard = () => {
   const param = useParams();
   console.log(param);
   return (
-    <div className="flex bg-secondary p-0">
+    <div className="flex bg-secondary p-0 h-screen overflow-hidden">
       <SideBar />
       <div className="w-full max-h-full flex flex-col gap-1 p-2 text-lg">
         <nav className="bg-foreground w-full px-7 p-2 flex items-center rounded-md text-white justify-between">
