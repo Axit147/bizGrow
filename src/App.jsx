@@ -148,6 +148,7 @@ function App() {
     user.setPhone_no(null);
     user.setId(null);
     user.setOrgs(null);
+    localStorage.setItem("token", null);
   };
 
   return (

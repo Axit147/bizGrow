@@ -53,6 +53,7 @@ import { delete_invoice, get_all_invoice, update_status } from "../api";
 import { useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import Animation from "../assets/lottie/Animation - 1727850616990.json";
+import { format } from "date-fns";
 
 // EditForm for Invoice
 const EditInvoiceForm = ({ invoice, setInvoices, invoices }) => {
@@ -134,6 +135,7 @@ const Invoice = () => {
   const [invoices, setInvoices] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
+  const { toast } = useToast();
 
   const params = useParams();
 
@@ -282,9 +284,11 @@ const Invoice = () => {
                     />
                   </TableCell>
                   <TableCell>INV-{invoice.id.split("-", 1)}</TableCell>
-                  <TableCell>{invoice.customer_id}</TableCell>
+                  <TableCell>{invoice.customer_name}</TableCell>
                   <TableCell>₹{invoice.total_amount}</TableCell>
-                  <TableCell>{invoice.overdue_date}</TableCell>
+                  <TableCell>
+                    {format(new Date(invoice.overdue_date), "dd-MM-yyyy")}
+                  </TableCell>
                   <TableCell>
                     <Checkbox
                       onCheckedChange={async () => {

@@ -176,8 +176,8 @@ const Item = () => {
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // product.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.id.toString().includes(searchTerm)
   );
 
@@ -267,9 +267,9 @@ const Item = () => {
                   <TableCell>ITM-{product.id.split("-", 1)}</TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
-                  <TableCell>${product.purchase_price}</TableCell>
-                  <TableCell>${product.sell_price}</TableCell>
-                  <TableCell>${product.profit}</TableCell>
+                  <TableCell>₹{product.purchase_price}</TableCell>
+                  <TableCell>₹{product.sell_price}</TableCell>
+                  <TableCell>₹{product.profit}</TableCell>
                   <TableCell className="flex gap-2 items-center">
                     <Dialog>
                       <DialogTrigger>

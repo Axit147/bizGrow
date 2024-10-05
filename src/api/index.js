@@ -29,6 +29,8 @@ export const get_item_names = (org_id) => API.get(`${org_id}/items/name`);
 
 export const get_all_items = (org_id) => API.get(`${org_id}/items`);
 
+export const get_ord_details = (org_id) => API.get(`/organization/${org_id}`);
+
 export const create_cutomer = (info, org_id) =>
   API.post(`${org_id}/customer`, info);
 
@@ -58,3 +60,8 @@ export const get_dashboard = (org_id) => API.get(`/dashboard/${org_id}`);
 
 export const create_subscription = (info) =>
   API.post("/create_subscription", { email: info });
+
+export const get_forecast = (org_id) =>
+  API.get(`${org_id}/predict_next_month_sales`);
+
+export const train_model = (org_id) => API.post(`train_sales_model/${org_id}`);

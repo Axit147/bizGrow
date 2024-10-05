@@ -1,4 +1,5 @@
 import {
+  BrainCircuit,
   ChartLine,
   ChevronLeft,
   LayoutDashboard,
@@ -6,6 +7,7 @@ import {
   NotebookPen,
   ReceiptIndianRupee,
   ShoppingBag,
+  TrendingUpDown,
   UsersRound,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -123,6 +125,25 @@ const SideBar = () => {
           >
             <NotebookPen className="h-8 w-8 shrink-0" />
             Invoices
+          </div>
+        </NavLink>
+        <NavLink
+          to={`/${params.id}/forecast`}
+          className={({ isActive, isPending }) =>
+            `w-full ${
+              isActive ? "hover:opacity-75" : "hover:bg-white/20"
+            } flex gap-3.5 rounded items-center p-2.5 overflow-hidden transition duration-300 text-lg ${
+              isActive && "bg-white text-foreground "
+            }`
+          }
+        >
+          <div
+            className={`${
+              isOpen ? "translate-x-3" : "translate-x-0"
+            } flex gap-3.5 rounded items-center transition-transform duration-500`}
+          >
+            <BrainCircuit className="h-8 w-8 shrink-0" />
+            Sales forecast
           </div>
         </NavLink>
       </div>
