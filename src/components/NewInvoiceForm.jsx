@@ -185,6 +185,7 @@ const NewInvoiceForm = ({ setInvoices }) => {
     const info = {
       invoice_no: "INV-" + JSON.stringify(Math.floor(Math.random() * 10000)),
       customer_id: selectedCustomer.id,
+      customer_name: selectedCustomer.name,
       invoice_date: addDays(billDate, 1),
       overdue_date: addDays(dueDate, 1),
       items: purchasedProducts.map((p) => ({

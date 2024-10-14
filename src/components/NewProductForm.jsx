@@ -1,109 +1,173 @@
-import React, { useState } from "react";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
-import { useToast } from "../hooks/use-toast";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useParams } from "react-router-dom";
-import { create_item } from "../api";
+import { Loader2 } from "lucide-react";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { create_item } from "@/api";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Product name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  purchase_price: z.number().positive("Purchase price must be positive"),
+  sell_price: z.number().positive("Selling price must be positive"),
+});
 
 const NewProductForm = ({ setProducts }) => {
-  const [fields, setFields] = useState({
-    name: "",
-    description: "",
-    purchase_price: "",
-    sell_price: "",
-  });
-
   const params = useParams();
-
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
-    setIsLoading(true);
-    e.preventDefault();
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      purchase_price: "",
+      sell_price: "",
+    },
+  });
+
+  const onSubmit = async (values) => {
     try {
-      console.log(fields);
-      const res = await create_item(fields, params.id);
-      console.log(res.data.Item);
+      const res = await create_item(values, params.id);
       setProducts((prev) => [res.data.Item, ...prev]);
-      setIsLoading(false);
-      setFields({
-        name: "",
-        description: "",
-        purchase_price: "",
-        sell_price: "",
-      });
-      return toast({
-        title: "Yay! Success",
-        description: "New product added successfully",
+      form.reset();
+      toast({
+        title: "Product Added",
+        description: "New product has been added successfully.",
       });
     } catch (error) {
-      console.log(error);
-      return toast({
-        title: "Something went wrong!",
-        variant: "destructive",
+      console.error(error);
+      toast({
+        title: "Error",
         description:
-          error.response.data.detail[0].msg || error.response.data.detail,
+          error.response?.data?.detail ||
+          "An error occurred while adding the product.",
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <div>
-          <Label>Product Name</Label>
-          <Input
-            required
-            onChange={(e) => setFields({ ...fields, name: e.target.value })}
-            value={fields.name}
-          />
-        </div>
-
-        <div>
-          <Label>Description</Label>
-          <Input
-            required
-            onChange={(e) =>
-              setFields({ ...fields, description: e.target.value })
-            }
-            value={fields.description}
-          />
-        </div>
-        <div>
-          <Label>Purchase Price</Label>
-          <Input
-            required
-            type="number"
-            onChange={(e) =>
-              setFields({ ...fields, purchase_price: e.target.value })
-            }
-            value={fields.purchase_price}
-          />
-        </div>
-        <div>
-          <Label>Selling Price</Label>
-          <Input
-            required
-            type="number"
-            onChange={(e) =>
-              setFields({ ...fields, sell_price: e.target.value })
-            }
-            value={fields.sell_price}
-          />
-        </div>
-        <div className="pt-2">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
-            Add
-          </Button>
-        </div>
-      </div>
-    </form>
+    // <Card className="w-full max-w-2xl mx-auto">
+    //   <CardHeader>
+    //     <CardTitle>Add New Product</CardTitle>
+    //     <CardDescription>
+    //       Enter the details of the new product below.
+    //     </CardDescription>
+    //   </CardHeader>
+    //   <CardContent>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-0.5">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter product name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter product description" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="purchase_price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Purchase Price</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+              </FormControl>
+              <FormDescription>
+                Enter the price you paid for this product.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="sell_price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Selling Price</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+              </FormControl>
+              <FormDescription>
+                Enter the price you'll sell this product for.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Adding Product...
+            </>
+          ) : (
+            "Add Product"
+          )}
+        </Button>
+      </form>
+    </Form>
+    //   </CardContent>
+    // </Card>
   );
 };
 

@@ -42,93 +42,7 @@ import { useParams } from "react-router-dom";
 import { get_all_items, update_item } from "../api";
 import Lottie from "lottie-react";
 import Animation from "../assets/lottie/Animation - 1727850616990.json";
-
-const EditForm = ({ product, setProducts, products }) => {
-  const [newData, setNewData] = useState(product);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { toast } = useToast();
-  const params = useParams();
-  const handleSave = async () => {
-    console.log(newData);
-    setIsLoading(true);
-    try {
-      const res = await update_item(newData, params.id);
-      res &&
-        setProducts(
-          products.map((product) =>
-            product.id === newData.id ? newData : product
-          )
-        );
-      toast({
-        title: "Changes have been saved successfully",
-      });
-    } catch (error) {
-      console.log(error);
-      setNewData(product);
-      toast({
-        title: "Something went wrong!",
-        description:
-          error.response.data.detail[0].msg || error.response.data.detail,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-2">
-      <div>
-        <Label>Id:</Label>
-        <Input value={newData.id} readOnly disabled />
-      </div>
-      <div>
-        <Label>Name:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, name: e.target.value }))
-          }
-          value={newData.name}
-        />
-      </div>
-
-      <div>
-        <Label>Description:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, description: e.target.value }))
-          }
-          value={newData.description}
-        />
-      </div>
-      <div>
-        <Label>Purchase Price:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, purchase_price: e.target.value }))
-          }
-          value={newData.purchase_price}
-        />
-      </div>
-      <div>
-        <Label>Selling Price:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, sell_price: e.target.value }))
-          }
-          value={newData.sell_price}
-        />
-      </div>
-      <div className="text-right mt-2">
-        <Button className="mt-2" onClick={handleSave} disabled={isLoading}>
-          {isLoading && <Loader2 className="animate-spin" />}
-          Save
-        </Button>
-      </div>
-    </div>
-  );
-};
+import EditProductForm from "./EditProductForm";
 
 const Item = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -269,21 +183,18 @@ const Item = () => {
                   <TableCell>{product.description}</TableCell>
                   <TableCell>₹{product.purchase_price}</TableCell>
                   <TableCell>₹{product.sell_price}</TableCell>
-                  <TableCell>₹{product.profit}</TableCell>
+                  <TableCell>
+                    ₹
+                    {product.profit ||
+                      product.sell_price - product.purchase_price}
+                  </TableCell>
                   <TableCell className="flex gap-2 items-center">
                     <Dialog>
                       <DialogTrigger>
                         <Edit className="h-5 w-5" />
                       </DialogTrigger>
-                      <DialogContent className="bg-muted">
-                        <DialogHeader>
-                          <DialogTitle>Edit Product Information</DialogTitle>
-                          <DialogDescription>
-                            Make changes to your product's details here. Click
-                            save when you're done.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <EditForm
+                      <DialogContent className="p-0">
+                        <EditProductForm
                           product={product}
                           setProducts={setProducts}
                           products={products}

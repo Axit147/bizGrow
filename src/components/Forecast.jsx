@@ -28,7 +28,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { HandCoins, IndianRupee, Loader2, ShoppingCart } from "lucide-react";
-import { get_dashboard } from "../api";
+// import { get_dashboard } from "../api/apis";
 import Lottie from "lottie-react";
 import Animation from "../assets/lottie/Animation - 1727850616990.json";
 import { Button } from "./ui/button";

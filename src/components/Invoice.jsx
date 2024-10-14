@@ -56,78 +56,78 @@ import Animation from "../assets/lottie/Animation - 1727850616990.json";
 import { format } from "date-fns";
 
 // EditForm for Invoice
-const EditInvoiceForm = ({ invoice, setInvoices, invoices }) => {
-  const [newData, setNewData] = useState(invoice);
-  const { toast } = useToast();
+// const EditInvoiceForm = ({ invoice, setInvoices, invoices }) => {
+//   const [newData, setNewData] = useState(invoice);
+//   const { toast } = useToast();
 
-  const handleSave = () => {
-    setInvoices(invoices.map((inv) => (inv.id === newData.id ? newData : inv)));
-    toast({
-      title: "Invoice details updated successfully",
-    });
-  };
+//   const handleSave = () => {
+//     setInvoices(invoices.map((inv) => (inv.id === newData.id ? newData : inv)));
+//     toast({
+//       title: "Invoice details updated successfully",
+//     });
+//   };
 
-  return (
-    <div className="space-y-2">
-      <div>
-        <Label>Invoice ID:</Label>
-        <Input value={newData.id} readOnly disabled />
-      </div>
-      <div>
-        <Label>Invoice Number:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, invoiceNumber: e.target.value }))
-          }
-          value={newData.invoiceNumber}
-        />
-      </div>
-      <div>
-        <Label>Client:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, client: e.target.value }))
-          }
-          value={newData.client}
-        />
-      </div>
-      <div>
-        <Label>Amount:</Label>
-        <Input
-          type="number"
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, amount: e.target.value }))
-          }
-          value={newData.amount}
-        />
-      </div>
-      <div>
-        <Label>Due Date:</Label>
-        <Input
-          type="date"
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, dueDate: e.target.value }))
-          }
-          value={newData.dueDate}
-        />
-      </div>
-      <div>
-        <Label>Status:</Label>
-        <Input
-          onChange={(e) =>
-            setNewData((prev) => ({ ...prev, status: e.target.value }))
-          }
-          value={newData.status}
-        />
-      </div>
-      <div className="text-right mt-2">
-        <Button className="mt-2" onClick={handleSave}>
-          Save
-        </Button>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="space-y-2">
+//       <div>
+//         <Label>Invoice ID:</Label>
+//         <Input value={newData.id} readOnly disabled />
+//       </div>
+//       <div>
+//         <Label>Invoice Number:</Label>
+//         <Input
+//           onChange={(e) =>
+//             setNewData((prev) => ({ ...prev, invoiceNumber: e.target.value }))
+//           }
+//           value={newData.invoiceNumber}
+//         />
+//       </div>
+//       <div>
+//         <Label>Client:</Label>
+//         <Input
+//           onChange={(e) =>
+//             setNewData((prev) => ({ ...prev, client: e.target.value }))
+//           }
+//           value={newData.client}
+//         />
+//       </div>
+//       <div>
+//         <Label>Amount:</Label>
+//         <Input
+//           type="number"
+//           onChange={(e) =>
+//             setNewData((prev) => ({ ...prev, amount: e.target.value }))
+//           }
+//           value={newData.amount}
+//         />
+//       </div>
+//       <div>
+//         <Label>Due Date:</Label>
+//         <Input
+//           type="date"
+//           onChange={(e) =>
+//             setNewData((prev) => ({ ...prev, dueDate: e.target.value }))
+//           }
+//           value={newData.dueDate}
+//         />
+//       </div>
+//       <div>
+//         <Label>Status:</Label>
+//         <Input
+//           onChange={(e) =>
+//             setNewData((prev) => ({ ...prev, status: e.target.value }))
+//           }
+//           value={newData.status}
+//         />
+//       </div>
+//       <div className="text-right mt-2">
+//         <Button className="mt-2" onClick={handleSave}>
+//           Save
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const Invoice = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -196,7 +196,10 @@ const Invoice = () => {
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
           invoice.invoice_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          invoice.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          invoice.customer_name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          invoice.status.toLowerCase() === searchTerm.toLowerCase() ||
           invoice.id.toString().includes(searchTerm)
       )
     );

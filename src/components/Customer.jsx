@@ -38,148 +38,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Edit, Loader2, Plus, Trash, Trash2 } from "lucide-react";
 import NewCustomerForm from "./NewCustomerForm";
 import { toast, useToast } from "../hooks/use-toast";
-import { delete_customer, get_all_customers, update_customer } from "../api";
+import {
+  delete_customer,
+  get_all_customers,
+  update_customer,
+} from "../api/index";
 import { useParams } from "react-router-dom";
 import Lottie from "lottie-react";
 import Animation from "../assets/lottie/Animation - 1727850616990.json";
-
-const EditForm = ({ customer, setCustomers, customers }) => {
-  const [newData, setNewData] = useState(customer);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { toast } = useToast();
-  const params = useParams();
-
-  const handleSave = async () => {
-    console.log(newData);
-    setIsLoading(true);
-    try {
-      const res = await update_customer(
-        {
-          id: newData.id,
-          name: newData.name,
-          email: newData.email,
-          phone: JSON.stringify(newData.phone),
-          company_name: newData.company_name,
-          state: newData.state,
-          city: newData.city,
-          pincode: JSON.stringify(newData.pincode),
-          bill_address: newData.bill_address,
-        },
-        params.id
-      );
-      res &&
-        setCustomers(
-          customers.map((customer) =>
-            customer.id === newData.id ? newData : customer
-          )
-        );
-      toast({
-        title: "Changes have been saved successfully",
-      });
-    } catch (error) {
-      console.log(error);
-      setNewData(customer);
-      toast({
-        title: "Something went wrong!",
-        description:
-          error.response.data.detail[0].msg || error.response.data.detail,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <ScrollArea className="max-h-[70vh]">
-      <div className="space-y-2 px-2">
-        <div>
-          <Label>Id:</Label>
-          <Input value={newData.id} readOnly disabled />
-        </div>
-        <div>
-          <Label>Name:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, name: e.target.value }))
-            }
-            value={newData.name}
-          />
-        </div>
-        <div>
-          <Label>Email:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, email: e.target.value }))
-            }
-            value={newData.email}
-          />
-        </div>
-        <div>
-          <Label>Phone:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, phone: e.target.value }))
-            }
-            value={newData.phone}
-          />
-        </div>
-        <div>
-          <Label>Company Name:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, company_name: e.target.value }))
-            }
-            value={newData.company_name}
-          />
-        </div>
-        <div>
-          <Label>Bill Address:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, bill_address: e.target.value }))
-            }
-            value={newData.bill_address}
-          />
-        </div>
-        <div>
-          <Label>State:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, state: e.target.value }))
-            }
-            value={newData.state}
-          />
-        </div>
-        <div>
-          <Label>City:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, city: e.target.value }))
-            }
-            value={newData.city}
-          />
-        </div>
-        <div>
-          <Label>Pincode:</Label>
-          <Input
-            onChange={(e) =>
-              setNewData((prev) => ({ ...prev, pincode: e.target.value }))
-            }
-            value={newData.pincode}
-          />
-        </div>
-        <div className="text-right mt-2">
-          <Button className="mt-2" onClick={handleSave} disabled={isLoading}>
-            {isLoading && <Loader2 className="animate-spin" />}
-            Save
-          </Button>
-        </div>
-      </div>
-    </ScrollArea>
-  );
-};
+import EditCustomerForm from "./EditCustomerForm";
 
 const CustomerTable = () => {
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -343,15 +210,8 @@ const CustomerTable = () => {
                       <DialogTrigger>
                         <Edit className="h-5 w-5" />
                       </DialogTrigger>
-                      <DialogContent className="bg-muted">
-                        <DialogHeader>
-                          <DialogTitle>Edit Customer Information</DialogTitle>
-                          <DialogDescription>
-                            Make changes to your customer's profile here. Click
-                            save when you're done.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <EditForm
+                      <DialogContent className="p-0">
+                        <EditCustomerForm
                           customer={customer}
                           setCustomers={setCustomers}
                           customers={customers}

@@ -1,154 +1,229 @@
-import React, { useState } from "react";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Loader2, Plus } from "lucide-react";
-import { useToast } from "../hooks/use-toast";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { create_cutomer } from "../api";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { useParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { create_cutomer } from "@/api";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  company_name: z.string().min(2, "Company name must be at least 2 characters"),
+  bill_address: z.string().min(5, "Address must be at least 5 characters"),
+  city: z.string().min(2, "City must be at least 2 characters"),
+  state: z.string().min(2, "State must be at least 2 characters"),
+  pincode: z.string().min(6, "Pincode must be at least 6 characters"),
+});
 
 const NewCustomerForm = ({ setCustomers }) => {
-  const [fields, setFields] = useState({
-    name: undefined,
-    email: undefined,
-    phone: undefined,
-    company_name: undefined,
-    bill_address: undefined,
-    city: undefined,
-    state: undefined,
-    pincode: undefined,
-  });
-
   const params = useParams();
-
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
-    setIsLoading(true);
-    e.preventDefault();
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      company_name: "",
+      bill_address: "",
+      city: "",
+      state: "",
+      pincode: "",
+    },
+  });
+
+  const onSubmit = async (values) => {
     try {
-      console.log(fields);
-      const res = await create_cutomer(fields, params.id);
-      console.log(res.data.Customer);
+      const res = await create_cutomer(values, params.id);
       setCustomers((prev) => [res.data.Customer, ...prev]);
-      setIsLoading(false);
-      setFields({
-        name: "",
-        email: "",
-        phone: "",
-        company_name: "",
-        bill_address: "",
-        city: "",
-        state: "",
-        pincode: "",
-      });
-      return toast({
-        title: "Yay! Success",
-        description: "New customer added successfully",
+      form.reset();
+      toast({
+        title: "Customer Added",
+        description: "New customer has been added successfully.",
       });
     } catch (error) {
-      console.log(error);
-      return toast({
-        title: "Something went wrong!",
-        variant: "destructive",
+      console.error(error);
+      toast({
+        title: "Error",
         description:
-          error.response.data.detail[0].msg || error.response.data.detail,
+          error.response?.data?.detail ||
+          "An error occurred while adding the customer.",
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <ScrollArea className="max-h-[65vh] p-0">
-      <form onSubmit={handleSubmit} className="mx-4">
-        <div className="space-y-2">
-          <div>
-            <Label>Name</Label>
-            <Input
-              required
-              onChange={(e) => setFields({ ...fields, name: e.target.value })}
-              value={fields.name}
-            />
-          </div>
-          <div>
-            <Label>Company Name</Label>
-            <Input
-              required
-              onChange={(e) =>
-                setFields({ ...fields, company_name: e.target.value })
-              }
-              value={fields.companyName}
-            />
-          </div>
-          <div>
-            <Label>Email</Label>
-            <Input
-              required
-              onChange={(e) => setFields({ ...fields, email: e.target.value })}
-              value={fields.email}
-            />
-          </div>
-          <div>
-            <Label>Phone No.</Label>
-            <Input
-              required
-              onChange={(e) => setFields({ ...fields, phone: e.target.value })}
-              value={fields.phone_no}
-            />
-          </div>
-          <div>
-            <Label>Address</Label>
-            <Input
-              required
-              onChange={(e) =>
-                setFields({ ...fields, bill_address: e.target.value })
-              }
-              value={fields.address}
-            />
-          </div>
-          <div>
-            <Label>City</Label>
-            <Input
-              required
-              onChange={(e) => setFields({ ...fields, city: e.target.value })}
-              value={fields.address}
-            />
-          </div>
-          <div>
-            <Label>State</Label>
-            <Input
-              required
-              onChange={(e) => setFields({ ...fields, state: e.target.value })}
-              value={fields.address}
-            />
-          </div>
-          <div>
-            <Label>Pincode</Label>
-            <Input
-              required
-              onChange={(e) =>
-                setFields({ ...fields, pincode: e.target.value })
-              }
-              value={fields.address}
-            />
-          </div>
-          <div className="pt-2">
-            <Button
-              type="submit"
-              className="w-full"
-              // onClick={handleSubmit}
-              disabled={isLoading}
-            >
-              {isLoading && <Loader2 className="h-5 w-5 animate-spin" />}
-              Add
-            </Button>
-          </div>
-        </div>
-      </form>
+    // <Card className="w-full max-w-2xl mx-auto">
+    //   <CardHeader>
+    //     <CardTitle>Add New Customer</CardTitle>
+    //     <CardDescription>
+    //       Enter the details of the new customer below.
+    //     </CardDescription>
+    //   </CardHeader>
+    //   <CardContent>
+    <ScrollArea className="h-[65vh] pr-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 px-0.5"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter customer name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="company_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Company Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter company name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="Enter email address"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone No.</FormLabel>
+                <FormControl>
+                  <Input
+                    type="tel"
+                    placeholder="Enter phone number"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bill_address"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter billing address" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter city" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>State</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter state" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="pincode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pincode</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter pincode" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding Customer...
+              </>
+            ) : (
+              "Add Customer"
+            )}
+          </Button>
+        </form>
+      </Form>
     </ScrollArea>
+    //   {/* </CardContent>
+    // </Card> */}
   );
 };
 

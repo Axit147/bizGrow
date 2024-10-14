@@ -314,7 +314,7 @@ function App() {
                   if (user.orgs.length) {
                     return navigate(`${user.orgs[0]}/dashboard`);
                   }
-                  newOrgModal.onOpen();
+                  return newOrgModal.onOpen();
                 }}
               >
                 Get Started
