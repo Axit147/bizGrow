@@ -52,7 +52,7 @@ const Forecast = () => {
   const [isTraining, setIsTraining] = useState(false);
   const [isPredicting, setIsPredicting] = useState(false);
   const [date, setDate] = useState();
-  const [predictedData, setPredicatedData] = useState(1000);
+  const [predictedData, setPredicatedData] = useState(null);
 
   const fetchForecast = async () => {
     const res = await get_forecast(params.id);
@@ -125,9 +125,10 @@ const Forecast = () => {
               disabled={isPredicting}
               onClick={async () => {
                 setIsPredicting(true);
+                console.log(format(date, "yyyy-MM-dd"))
                 try {
                   const res = await predict_sales(params.id, {
-                    date: format(date, "PPP"),
+                    date: format(date, "yyyy-MM-dd"),
                   });
                   console.log(res.data);
                   setPredicatedData(res.data.predicted_sales);
@@ -149,7 +150,7 @@ const Forecast = () => {
           {predictedData && date && (
             <div className="mb-4 text-sm">
               Predicted sales for date {format(date, "PPP")} :{" "}
-              <span className="font-semibold text-lg">₹{predictedData}</span>
+              <span className="font-semibold text-lg">₹{parseFloat(predictedData).toFixed(2)}</span>
             </div>
           )}
           <ResponsiveContainer width="95%" height={400}>
