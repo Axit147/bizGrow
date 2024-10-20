@@ -28,11 +28,27 @@ import {
 } from "@/components/ui/form";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Product name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  purchase_price: z.number().positive("Purchase price must be positive"),
-  sell_price: z.number().positive("Selling price must be positive"),
+  name: z.string()
+    .min(2, "Product name must be at least 2 characters")
+    .max(50, "Product name must be less than 50 characters"),
+  
+  description: z.string()
+    .min(10, "Description must be at least 10 characters")
+    .max(200, "Description must be less than 200 characters"),
+  
+  purchase_price: z.number()
+    .positive("Purchase price must be positive")
+    .max(10000000, "Purchase price must not exceed 100,000,00"),
+
+  sell_price: z.number()
+    .positive("Selling price must be positive")
+    .min(1, "Selling price must be at least 1")
+    .max(10000000, "Selling price must not exceed 100,000,00")
+    .refine((value, ctx) => value > ctx.parent.purchase_price, {
+      message: "Selling price must be greater than purchase price",
+    }),
 });
+
 
 const NewProductForm = ({ setProducts }) => {
   const params = useParams();

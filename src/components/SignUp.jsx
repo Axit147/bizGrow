@@ -49,6 +49,9 @@ const SignUp = () => {
     address: undefined,
   });
 
+  const [formError, setFormError] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
   const onChange = (open) => {
     if (!open) {
       onClose();
@@ -56,74 +59,41 @@ const SignUp = () => {
     return;
   };
 
-  const [formError, setFormError] = useState(undefined);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // const statesAndUTs = [
-  //   "Andhra Pradesh",
-  //   "Arunachal Pradesh",
-  //   "Assam",
-  //   "Bihar",
-  //   "Chhattisgarh",
-  //   "Goa",
-  //   "Gujarat",
-  //   "Haryana",
-  //   "Himachal Pradesh",
-  //   "Jharkhand",
-  //   "Karnataka",
-  //   "Kerala",
-  //   "Madhya Pradesh",
-  //   "Maharashtra",
-  //   "Manipur",
-  //   "Meghalaya",
-  //   "Mizoram",
-  //   "Nagaland",
-  //   "Odisha",
-  //   "Punjab",
-  //   "Rajasthan",
-  //   "Sikkim",
-  //   "Tamil Nadu",
-  //   "Telangana",
-  //   "Tripura",
-  //   "Uttar Pradesh",
-  //   "Uttarakhand",
-  //   "West Bengal",
-  //   "Andaman and Nicobar Islands",
-  //   "Chandigarh",
-  //   "Dadra and Nagar Haveli and Daman and Diu",
-  //   "Lakshadweep",
-  //   "Delhi",
-  //   "Puducherry",
-  // ];
+  // Regex for validations
+  const nameRegex = /^[a-zA-Z\s]{3,}$/; // Only letters and spaces, minimum length of 3
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i; // Simple email format
+  const phoneRegex = /^[0-9]{10}$/; // 10-digit phone number
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/; // At least one upper case, one lower case, one number, and minimum 8 characters
 
   const handleSubmit = async () => {
     setFormError(undefined);
     setIsLoading(false);
 
     try {
-      Object.entries(fields).forEach(([key, value]) => {
-        if (!value || value === undefined) {
-          setFormError(
-            `${
-              key === "name"
-                ? "Name"
-                : key === "email"
-                ? "Email"
-                : key === "password"
-                ? "Password"
-                : key === "address"
-                ? "Address"
-                : key === "phone_no"
-                ? "Phone no."
-                : key
-            } is required`
-          );
-          throw new Error();
-        }
-      });
+      // Validate fields
+      if (!fields.name || !nameRegex.test(fields.name)) {
+        setFormError("Please enter a valid name (minimum 3 letters).");
+        throw new Error();
+      }
 
-      // console.log(fields);
+      if (!fields.email || !emailRegex.test(fields.email)) {
+        setFormError("Please enter a valid email address.");
+        throw new Error();
+      }
 
+      if (!fields.phone_no || !phoneRegex.test(fields.phone_no)) {
+        setFormError("Please enter a valid 10-digit phone number.");
+        throw new Error();
+      }
+
+      if (!fields.password || !passwordRegex.test(fields.password)) {
+        setFormError(
+          "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, and one number."
+        );
+        throw new Error();
+      }
+
+      // Submit the form if validations pass
       const response = await signup(fields);
       console.log(response);
 
@@ -136,12 +106,14 @@ const SignUp = () => {
       // return navigate("/dashboard");
     } catch (error) {
       console.log(error);
-      setFormError(error.response.data.detail);
-      return toast({
-        variant: "destructive",
-        title: "Uh oh!",
-        description: error.response.data.detail,
-      });
+      if (error.response?.data?.detail) {
+        setFormError(error.response.data.detail);
+        return toast({
+          variant: "destructive",
+          title: "Uh oh!",
+          description: error.response.data.detail,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +136,7 @@ const SignUp = () => {
             onChange={(v) => {
               setFields({ ...fields, name: v });
             }}
-            value={fields.companyName}
+            value={fields.name}
           >
             <div>
               <UserRound className="h-5 w-5 text-slate-600" />
@@ -192,7 +164,7 @@ const SignUp = () => {
             onChange={(v) => {
               setFields({ ...fields, phone_no: v });
             }}
-            value={fields.phone}
+            value={fields.phone_no}
           >
             <div>
               <Phone className="h-5 w-5 text-slate-600" />
@@ -229,28 +201,7 @@ const SignUp = () => {
             </div>
           </CustomInput>
         </div>
-        {/* <div>
-        <Label>State :</Label>
-        <Select
-          onValueChange={(v) => {
-            setFields({ ...fields, state: v });
-          }}
-          defaultValue={fields.state}
-          value={fields.state}
-        >
-          <SelectTrigger className="w-full justify-start p-2 gap-2">
-            <MapPin className="h-5 w-5 text-slate-600" />
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            {statesAndUTs.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div> */}
+
         {formError && (
           <div className="p-4 text-center border-2 border-red-500 bg-red-500/30 rounded-lg text-red-500 font-semibold">
             {formError}

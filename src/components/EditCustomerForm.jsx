@@ -30,14 +30,41 @@ import {
 
 const formSchema = z.object({
   id: z.string(),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  company_name: z.string().min(2, "Company name must be at least 2 characters"),
-  bill_address: z.string().min(5, "Address must be at least 5 characters"),
-  city: z.string().min(2, "City must be at least 2 characters"),
-  state: z.string().min(2, "State must be at least 2 characters"),
-  pincode: z.number().min(6, "Pincode must be at least 5 characters"),
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, "Name should contain only letters and spaces"),
+    email: z
+    .string()
+    .min(1, "Email is required")
+    .regex(
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      "Please enter a valid email address"
+    ),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be exactly 10 digits" })
+    .max(10, { message: "Phone number must be exactly 10 digits" })
+    .regex(/^\d+$/, "Phone number should only contain digits"),
+  company_name: z
+    .string()
+    .min(2, { message: "Company name must be at least 2 characters" }),
+  bill_address: z
+    .string()
+    .min(5, { message: "Address must be at least 5 characters" }),
+  city: z
+    .string()
+    .min(2, { message: "City must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, "City name should contain only letters and spaces"),
+  state: z
+    .string()
+    .min(2, { message: "State must be at least 2 characters" })
+    .regex(/^[a-zA-Z\s]+$/, "State name should contain only letters and spaces"),
+  pincode: z
+    .string()
+    .min(6, { message: "Pincode must be exactly 6 digits" })
+    .max(6, { message: "Pincode must be exactly 6 digits" })
+    .regex(/^\d+$/, "Pincode should only contain digits"),
 });
 
 const EditCustomerForm = ({ customer, setCustomers, customers }) => {
