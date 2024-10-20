@@ -32,6 +32,17 @@ import { HandCoins, IndianRupee, Loader2, ShoppingCart } from "lucide-react";
 import Lottie from "lottie-react";
 import Animation from "../assets/lottie/Animation - 1727850616990.json";
 import { Button } from "./ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import { useToast } from "../hooks/use-toast";
 
 const Forecast = () => {
@@ -39,6 +50,8 @@ const Forecast = () => {
   const { toast } = useToast();
   const [data, setData] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
+  const [date, setDate] = useState();
+  const [predictedData, setPredicatedData] = useState(1000);
 
   const fetchForecast = async () => {
     const res = await get_forecast(params.id);
@@ -84,6 +97,37 @@ const Forecast = () => {
           </div>
         </CardHeader>
         <CardContent>
+          <div className="flex items-center gap-5 mb-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button>Predict</Button>
+          </div>
+          {predictedData && date && (
+            <div className="mb-4 text-sm">
+              Predicted sales for date {format(date, "PPP")} :{" "}
+              <span className="font-semibold text-lg">₹{predictedData}</span>
+            </div>
+          )}
           <ResponsiveContainer width="95%" height={400}>
             <LineChart className="" data={data}>
               <XAxis

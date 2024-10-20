@@ -128,3 +128,8 @@ export const train_model = (org_id) =>
   API.post(`train_sales_model/${org_id}`, {
     headers: { Authorization: localStorage.getItem("token") },
   });
+
+export const predict_sales = (org_id, date) =>
+  API.post(`${org_id}/predict-sales`, date, {
+    headers: { Authorization: localStorage.getItem("token") },
+  });

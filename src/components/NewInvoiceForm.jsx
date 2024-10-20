@@ -207,7 +207,7 @@ const NewInvoiceForm = ({ setInvoices }) => {
       console.log(error);
       toast({
         title: "Something went wrong!",
-        variant: "destruvtive",
+        variant: "destructive",
         description:
           error.response.data.detail[0].msg ||
           error.response.data.detail ||
