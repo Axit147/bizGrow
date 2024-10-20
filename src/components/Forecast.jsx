@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { get_forecast, train_model } from "../api";
+import { get_forecast, predict_sales, train_model } from "../api";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -50,6 +50,7 @@ const Forecast = () => {
   const { toast } = useToast();
   const [data, setData] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
+  const [isPredicting, setIsPredicting] = useState(false);
   const [date, setDate] = useState();
   const [predictedData, setPredicatedData] = useState(1000);
 
@@ -120,7 +121,28 @@ const Forecast = () => {
                 />
               </PopoverContent>
             </Popover>
-            <Button>Predict</Button>
+            <Button
+              disabled={isPredicting}
+              onClick={async () => {
+                setIsPredicting(true);
+                try {
+                  const res = await predict_sales(params.id, { date });
+                  console.log(res.data);
+                  setPredicatedData(res.data.predicted_sales);
+                } catch (error) {
+                  toast({
+                    title: "Something went wrong!",
+                    variant: "destructive",
+                    description: error.message,
+                  });
+                } finally {
+                  setIsPredicting(false);
+                }
+              }}
+            >
+              {isPredicting && <Loader2 className="animate-spin" />}
+              Predict
+            </Button>
           </div>
           {predictedData && date && (
             <div className="mb-4 text-sm">
