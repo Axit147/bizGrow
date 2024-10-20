@@ -44,13 +44,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 
+// Enhanced validation schema
 const formSchema = z.object({
-  name: z.string().min(2, "Organization name must be at least 2 characters"),
-  industry: z.string().min(2, "Industry must be at least 2 characters"),
-  country: z.string().min(2, "Country is required"),
-  state: z.string().min(2, "State is required"),
-  address: z.string().min(5, "Address must be at least 5 characters"),
-  gst_no: z.string().min(15, "GST number must be 15 characters").max(15),
+  name: z
+    .string()
+    .min(2, { message: "Organization name must be at least 2 characters" })
+    .nonempty({ message: "Organization name is required" }),
+  industry: z
+    .string()
+    .min(2, { message: "Industry must be at least 2 characters" })
+    .nonempty({ message: "Industry is required" })
+    .regex(/^[a-zA-Z\s]*$/, { message: "Industry can only contain letters" }),
+  country: z.string().min(2, { message: "Country is required" }),
+  state: z.string().min(2, { message: "State is required" }),
+  address: z
+    .string()
+    .min(5, { message: "Address must be at least 5 characters" })
+    .nonempty({ message: "Address is required" }),
+  gst_no: z
+    .string()
+    .min(15, { message: "GST number must be 15 characters" })
+    .max(15, { message: "GST number must be exactly 15 characters" })
+    .regex(/^[0-9a-zA-Z]+$/, { message: "GST number must be alphanumeric" }),
 });
 
 const statesAndUTs = [
@@ -272,18 +287,15 @@ export default function NewOrgModal() {
                   </FormItem>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
+
+              <Button type="submit" className="w-full">
                 {form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    Please wait
                   </>
                 ) : (
-                  "Register"
+                  "Create Organization"
                 )}
               </Button>
             </form>
