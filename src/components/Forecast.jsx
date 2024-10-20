@@ -126,7 +126,9 @@ const Forecast = () => {
               onClick={async () => {
                 setIsPredicting(true);
                 try {
-                  const res = await predict_sales(params.id, { date });
+                  const res = await predict_sales(params.id, {
+                    date: format(date, "PPP"),
+                  });
                   console.log(res.data);
                   setPredicatedData(res.data.predicted_sales);
                 } catch (error) {
